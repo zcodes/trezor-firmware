@@ -28,13 +28,14 @@ def header(
 class Text(TextBase):
     def on_render(self) -> None:
         if self.repaint:
-            header(
-                self.header_text,
-                self.header_icon,
-                ui.TITLE_GREY,
-                ui.BG,
-                self.icon_color,
-            )
+            if self.header_text is not None:
+                header(
+                    self.header_text,
+                    self.header_icon,
+                    ui.TITLE_GREY,
+                    ui.BG,
+                    self.icon_color,
+                )
             render_text(
                 self.content,
                 self.new_lines,

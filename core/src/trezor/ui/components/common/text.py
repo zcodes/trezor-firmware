@@ -360,7 +360,7 @@ if __debug__:
 class TextBase(ui.Component):
     def __init__(
         self,
-        header_text: str,
+        header_text: str | None,
         header_icon: str = ui.ICON_DEFAULT,
         icon_color: int = ui.ORANGE_ICON,
         max_lines: int = TEXT_MAX_LINES,
@@ -432,7 +432,7 @@ class TextBase(ui.Component):
                     self.on_render()
             finally:
                 self.repaint = should_repaint
-            return [self.header_text] + display_mock.screen_contents
+            return [self.header_text or ""] + display_mock.screen_contents
 
 
 LABEL_LEFT = const(0)
