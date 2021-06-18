@@ -264,6 +264,14 @@ legacy upgrade test:
     expire_in: 1 week
     when: always
 
+# HWI Test
+hwi trezor test:
+  stage: test
+  needs:
+    - core unix frozen debug build
+  script:
+    - nix-shell --run "git clone https://github.com/bitcoin-core/HWI.git && cd HWI && poetry install && cd test && poetry run python test_trezor.yp --trezor-t"
+
 
 # Python
 
