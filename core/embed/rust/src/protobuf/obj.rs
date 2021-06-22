@@ -85,7 +85,7 @@ impl MsgObj {
 
     fn setattr(&mut self, attr: Qstr, value: Obj) -> Result<(), Error> {
         if value == Obj::const_null() {
-            // this would be a delattr
+            // Null value means a dellattr operation, reject.
             return Err(Error::InvalidOperation);
         }
 
