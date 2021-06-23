@@ -1,7 +1,8 @@
 from trezor import ui
 
-from ..common.confirm import ConfirmBase
+from ..common.confirm import ConfirmBase, HoldToConfirmBase
 from .button import Button, ButtonBlack, ButtonWhite
+from .loader import Loader
 
 if False:
     from .button import ButtonContent, ButtonStyleType
@@ -33,3 +34,28 @@ class Confirm(ConfirmBase):
             button_cancel.on_click = self.on_cancel  # type: ignore
 
         super().__init__(content, button_confirm, button_cancel)
+
+
+class HoldToConfirm(HoldToConfirmBase):
+    DEFAULT_CONFIRM = "HOLD TO CONFIRM"
+    DEFAULT_CONFIRM_STYLE = ButtonWhite
+    DEFAULT_CANCEL = "X"
+
+    TOP_MARGIN = 11
+    BOTTOM_MARGIN = 12
+
+    def __init__(
+        self,
+        content: ui.Component,
+        confirm: ButtonContent = DEFAULT_CONFIRM,
+        confirm_style: ButtonStyleType = DEFAULT_CONFIRM_STYLE,
+        cancel: ButtonContent = DEFAULT_CANCEL,
+    ):
+        loader = Loader()
+        button_confirm = Button(True, confirm, confirm_style)
+
+        button_cancel = None
+        if cancel:
+            button_cancel = Button(False, cancel, ButtonBlack)
+
+        super().__init__(content, loader, button_confirm, button_cancel)

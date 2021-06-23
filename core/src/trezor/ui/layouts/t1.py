@@ -6,7 +6,8 @@ from trezor.utils import chunks, chunks_intersperse
 from ..components.common import break_path_to_lines
 from ..components.common.confirm import is_confirmed, raise_if_cancelled
 from ..components.common.text import Span
-from ..components.t1.confirm import Confirm
+from ..components.t1.confirm import Confirm, HoldToConfirm
+from ..components.t1.loader import loader
 from ..components.t1.text import Text
 from ..constants.t1 import (
     MONO_ADDR_PER_LINE,
@@ -69,20 +70,23 @@ async def confirm_action(
             param_font=description_param_font,
         )
 
-    cls = Confirm
+    if isinstance(verb, bytes) or isinstance(verb_cancel, bytes):
+        raise NotImplementedError
+
+    layout: ui.Layout
     if hold:
-        # cls = HoldToConfirm
-        if verb == Confirm.DEFAULT_CONFIRM and verb_cancel == Confirm.DEFAULT_CANCEL:
-            verb = "HOLD TO CONFIRM"
-            verb_cancel = "X"
-    kwargs = {}
-    if hold_danger:
-        # kwargs = {"loader_style": LoaderDanger, "confirm_style": ButtonCancel}
-        pass
+        if verb is None or verb == Confirm.DEFAULT_CONFIRM:
+            verb = HoldToConfirm.DEFAULT_CONFIRM
+        if verb_cancel is None or verb_cancel == Confirm.DEFAULT_CANCEL:
+            verb_cancel = HoldToConfirm.DEFAULT_CANCEL
+        layout = HoldToConfirm(text, confirm=verb, cancel=verb_cancel)
+    else:
+        layout = Confirm(text, confirm=verb, cancel=verb_cancel)
+
     await raise_if_cancelled(
         interact(
             ctx,
-            cls(text, confirm=verb, cancel=verb_cancel, **kwargs),
+            layout,
             br_type,
             br_code,
         ),
@@ -446,7 +450,7 @@ async def confirm_total(
     await raise_if_cancelled(
         interact(
             ctx,
-            Confirm(text, confirm="HOLD TO CONFIRM", cancel="X"),
+            HoldToConfirm(text, confirm="HOLD TO CONFIRM", cancel="X"),
             "confirm_total",
             ButtonRequestType.SignTx,
         )
@@ -464,7 +468,7 @@ async def confirm_joint_total(
     await raise_if_cancelled(
         interact(
             ctx,
-            Confirm(text, confirm="HOLD TO CONFIRM", cancel="X"),
+            HoldToConfirm(text, confirm="HOLD TO CONFIRM", cancel="X"),
             "confirm_joint_total",
             ButtonRequestType.SignTx,
         )
@@ -495,3 +499,22 @@ async def confirm_metadata(
         if larger_vspace:
             text.br_half()
         text.normal("Continue?")
+
+    cls = HoldToConfirm if hold else Confirm
+
+    await raise_if_cancelled(interact(ctx, cls(text), br_type, br_code))
+
+
+def draw_progress_init(sign: bool = True) -> None:
+    if sign:
+        ui.display.text_center(
+            ui.WIDTH // 2, 19, "Signing transaction", ui.BOLD, ui.FG, ui.BG
+        )
+    else:
+        ui.display.text_center(ui.WIDTH // 2, 19, "Starting up", ui.BOLD, ui.FG, ui.BG)
+    ui.display.text_center(ui.WIDTH // 2, 32, "Please wait", ui.NORMAL, ui.FG, ui.BG)
+
+
+def draw_progress_update(progress: int, total: int) -> None:
+    p = 1000 * progress // total
+    loader(p)

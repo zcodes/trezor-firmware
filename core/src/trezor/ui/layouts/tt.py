@@ -4,7 +4,6 @@ from ubinascii import hexlify
 from trezor import ui, wire
 from trezor.enums import ButtonRequestType
 from trezor.ui.container import Container
-from trezor.ui.loader import LoaderDanger
 from trezor.ui.qr import Qr
 from trezor.utils import chunks, chunks_intersperse
 
@@ -12,6 +11,7 @@ from ..components.common import break_path_to_lines
 from ..components.common.confirm import is_confirmed, raise_if_cancelled
 from ..components.tt.button import ButtonCancel, ButtonDefault
 from ..components.tt.confirm import Confirm, HoldToConfirm
+from ..components.tt.loader import LoaderDanger, LoadingAnimation
 from ..components.tt.scroll import (
     PAGEBREAK,
     PAGINATED_LINE_WIDTH,
@@ -71,6 +71,8 @@ __all__ = (
     "confirm_timebounds_stellar",
     "confirm_proposals_tezos",
     "confirm_transfer_binance",
+    "draw_progress_init",
+    "draw_progress_update",
 )
 
 
@@ -123,18 +125,26 @@ async def confirm_action(
             param_font=description_param_font,
         )
 
-    cls = Confirm
+    layout: ui.Layout
     if hold:
-        cls = HoldToConfirm
         if verb == Confirm.DEFAULT_CONFIRM:
             verb = "Hold to confirm"
-    kwargs = {}
-    if hold_danger:
-        kwargs = {"loader_style": LoaderDanger, "confirm_style": ButtonCancel}
+        if hold_danger:
+            layout = HoldToConfirm(
+                text,
+                confirm=verb,
+                loader_style=LoaderDanger,
+                confirm_style=ButtonCancel,
+            )
+        else:
+            layout = HoldToConfirm(text, confirm=verb)
+    else:
+        layout = Confirm(text, confirm=verb, cancel=verb_cancel)
+
     await raise_if_cancelled(
         interact(
             ctx,
-            cls(text, confirm=verb, cancel=verb_cancel, **kwargs),
+            layout,
             br_type,
             br_code,
         ),
@@ -159,6 +169,7 @@ async def confirm_reset_device(ctx: wire.GenericContext, prompt: str) -> None:
             ButtonRequestType.ResetDevice,
         )
     )
+    await LoadingAnimation()
 
 
 # TODO cleanup @ redesign
@@ -940,3 +951,17 @@ async def confirm_transfer_binance(
             ctx, Paginated(pages), "confirm_transfer", ButtonRequestType.ConfirmOutput
         )
     )
+
+
+def draw_progress_init(sign: bool = True) -> None:
+    if sign:
+        ui.header("Signing transaction")
+    else:
+        # get_seed
+        t = Text("Please wait", ui.ICON_CONFIG)
+        ui.draw_simple(t)
+
+
+def draw_progress_update(progress: int, total: int) -> None:
+    p = 1000 * progress // total
+    ui.display.loader(p, False, 18, ui.WHITE, ui.BG)

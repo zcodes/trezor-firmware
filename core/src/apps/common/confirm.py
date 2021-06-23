@@ -18,7 +18,7 @@ if False:
     from typing import Any, Callable
     from trezor import ui
     from trezor.ui.components.tt.confirm import ButtonContent, ButtonStyleType
-    from trezor.ui.loader import LoaderStyleType
+    from trezor.ui.components.tt.loader import LoaderStyleType
 
 
 async def confirm(

@@ -146,12 +146,16 @@ trezor.ui.components.common
 import trezor.ui.components.common
 trezor.ui.components.common.confirm
 import trezor.ui.components.common.confirm
+trezor.ui.components.common.loader
+import trezor.ui.components.common.loader
 trezor.ui.components.common.text
 import trezor.ui.components.common.text
 trezor.ui.components.t1.button
 import trezor.ui.components.t1.button
 trezor.ui.components.t1.confirm
 import trezor.ui.components.t1.confirm
+trezor.ui.components.t1.loader
+import trezor.ui.components.t1.loader
 trezor.ui.components.t1.text
 import trezor.ui.components.t1.text
 trezor.ui.components.tt.button
@@ -162,6 +166,8 @@ trezor.ui.components.tt.confirm
 import trezor.ui.components.tt.confirm
 trezor.ui.components.tt.info
 import trezor.ui.components.tt.info
+trezor.ui.components.tt.loader
+import trezor.ui.components.tt.loader
 trezor.ui.components.tt.num_input
 import trezor.ui.components.tt.num_input
 trezor.ui.components.tt.passphrase
@@ -192,8 +198,6 @@ trezor.ui.layouts.t1
 import trezor.ui.layouts.t1
 trezor.ui.layouts.tt
 import trezor.ui.layouts.tt
-trezor.ui.loader
-import trezor.ui.loader
 trezor.ui.popup
 import trezor.ui.popup
 trezor.ui.qr
