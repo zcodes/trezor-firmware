@@ -11,7 +11,7 @@ pub fn raise_value_error(msg: &'static CStr) -> ! {
     panic!();
 }
 
-pub fn call_except<F, T>(mut func: F) -> Result<T, Obj>
+pub fn except<F, T>(mut func: F) -> Result<T, Obj>
 where
     F: FnMut() -> T,
 {
@@ -47,5 +47,24 @@ where
     let func = arg as *mut F;
     unsafe {
         (*func)();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn except_returns_ok_on_no_exception() {
+        let result = except(|| 1);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 1);
+    }
+
+    #[test]
+    fn except_catches_value_error() {
+        let msg = unsafe { CStr::from_bytes_with_nul_unchecked(b"msg\0") };
+        let result = except(|| raise_value_error(&msg));
+        assert!(result.is_err());
     }
 }
