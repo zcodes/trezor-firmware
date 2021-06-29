@@ -146,14 +146,20 @@ trezor.ui.components.common
 import trezor.ui.components.common
 trezor.ui.components.common.confirm
 import trezor.ui.components.common.confirm
+trezor.ui.components.common.homescreen
+import trezor.ui.components.common.homescreen
 trezor.ui.components.common.loader
 import trezor.ui.components.common.loader
 trezor.ui.components.common.text
 import trezor.ui.components.common.text
+trezor.ui.components.t1
+import trezor.ui.components.t1
 trezor.ui.components.t1.button
 import trezor.ui.components.t1.button
 trezor.ui.components.t1.confirm
 import trezor.ui.components.t1.confirm
+trezor.ui.components.t1.homescreen
+import trezor.ui.components.t1.homescreen
 trezor.ui.components.t1.loader
 import trezor.ui.components.t1.loader
 trezor.ui.components.t1.text
@@ -164,6 +170,8 @@ trezor.ui.components.tt.checklist
 import trezor.ui.components.tt.checklist
 trezor.ui.components.tt.confirm
 import trezor.ui.components.tt.confirm
+trezor.ui.components.tt.homescreen
+import trezor.ui.components.tt.homescreen
 trezor.ui.components.tt.info
 import trezor.ui.components.tt.info
 trezor.ui.components.tt.loader

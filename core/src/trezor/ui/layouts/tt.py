@@ -9,8 +9,10 @@ from trezor.utils import chunks, chunks_intersperse
 
 from ..components.common import break_path_to_lines
 from ..components.common.confirm import is_confirmed, raise_if_cancelled
+from ..components.common.homescreen import HomescreenBase
 from ..components.tt.button import ButtonCancel, ButtonDefault
 from ..components.tt.confirm import Confirm, HoldToConfirm
+from ..components.tt.homescreen import Homescreen
 from ..components.tt.loader import LoaderDanger, LoadingAnimation
 from ..components.tt.scroll import (
     PAGEBREAK,
@@ -73,6 +75,7 @@ __all__ = (
     "confirm_transfer_binance",
     "draw_progress_init",
     "draw_progress_update",
+    "homescreen",
 )
 
 
@@ -965,3 +968,7 @@ def draw_progress_init(sign: bool = True) -> None:
 def draw_progress_update(progress: int, total: int) -> None:
     p = 1000 * progress // total
     ui.display.loader(p, False, 18, ui.WHITE, ui.BG)
+
+
+def homescreen() -> HomescreenBase:
+    return Homescreen()

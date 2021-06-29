@@ -5,8 +5,10 @@ from trezor.utils import chunks, chunks_intersperse
 
 from ..components.common import break_path_to_lines
 from ..components.common.confirm import is_confirmed, raise_if_cancelled
+from ..components.common.homescreen import HomescreenBase
 from ..components.common.text import Span
 from ..components.t1.confirm import Confirm, HoldToConfirm
+from ..components.t1.homescreen import Homescreen
 from ..components.t1.loader import loader
 from ..components.t1.text import Text
 from ..constants.t1 import (
@@ -518,3 +520,7 @@ def draw_progress_init(sign: bool = True) -> None:
 def draw_progress_update(progress: int, total: int) -> None:
     p = 1000 * progress // total
     loader(p)
+
+
+def homescreen() -> HomescreenBase:
+    return Homescreen()
