@@ -270,7 +270,7 @@ hwi trezor test:
   needs:
     - core unix frozen debug build
   script:
-    - nix-shell --run "git clone https://github.com/bitcoin-core/HWI.git && cd HWI && poetry install && cd test && poetry run python test_trezor.py --trezor-t"
+    - nix-shell --run "git clone https://github.com/bitcoin-core/HWI.git && cd HWI && poetry install && cd test && poetry run python test_trezor.py --trezor-t --bitcoind"
 
 
 # Python
