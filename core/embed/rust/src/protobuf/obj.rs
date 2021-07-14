@@ -70,8 +70,10 @@ impl MsgObj {
                 Ok(self.msg_wire_id.map_or_else(Obj::const_none, Into::into))
             }
             Qstr::MP_QSTR_MESSAGE_NAME => {
-                // Return the qstr name of this message def
-                Ok(Qstr::from_u16(find_name_by_msg_offset(self.msg_offset)?).into())
+                // Return the QSTR name of this message def.
+                let name =
+                    Qstr::from_u16(find_name_by_msg_offset(self.msg_offset).ok_or(Error::Missing)?);
+                Ok(name.into())
             }
             Qstr::MP_QSTR___dict__ => {
                 // Conversion to dict. Allocate a new dict object with a copy of our map
@@ -98,13 +100,13 @@ impl MsgObj {
     }
 }
 
-impl Into<Obj> for Gc<MsgObj> {
-    fn into(self) -> Obj {
+impl From<Gc<MsgObj>> for Obj {
+    fn from(val: Gc<MsgObj>) -> Self {
         // SAFETY:
         //  - We are GC-allocated.
         //  - We are `repr(C)`.
         //  - We have a `base` as the first field with the correct type.
-        unsafe { Obj::from_ptr(Self::into_raw(self).cast()) }
+        unsafe { Obj::from_ptr(Gc::into_raw(val).cast()) }
     }
 }
 
@@ -171,13 +173,13 @@ impl MsgDefObj {
     }
 }
 
-impl Into<Obj> for Gc<MsgDefObj> {
-    fn into(self) -> Obj {
+impl From<Gc<MsgDefObj>> for Obj {
+    fn from(val: Gc<MsgDefObj>) -> Self {
         // SAFETY:
         //  - We are GC-allocated.
         //  - We are `repr(C)`.
         //  - We have a `base` as the first field with the correct type.
-        unsafe { Obj::from_ptr(Self::into_raw(self).cast()) }
+        unsafe { Obj::from_ptr(Gc::into_raw(val).cast()) }
     }
 }
 
@@ -208,7 +210,8 @@ unsafe extern "C" fn msg_def_obj_attr(self_in: Obj, attr: ffi::qstr, dest: *mut 
         match attr {
             Qstr::MP_QSTR_MESSAGE_NAME => {
                 // Return the qstr name of this message def
-                let name = Qstr::from_u16(find_name_by_msg_offset(this.def.offset)?);
+                let name =
+                    Qstr::from_u16(find_name_by_msg_offset(this.def.offset).ok_or(Error::Missing)?);
                 unsafe {
                     dest.write(name.into());
                 };
