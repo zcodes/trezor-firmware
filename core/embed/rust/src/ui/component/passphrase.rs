@@ -53,12 +53,12 @@ impl PassphraseKeyboard {
         let textbox = Child::new(TextBox::new(textbox_area, text));
         let confirm_btn = Child::new(Button::with_text(
             confirm_btn_area,
-            b"Confirm",
+            "Confirm".into(),
             theme::button_confirm(),
         ));
         let back_btn = Child::new(Button::with_text(
             back_btn_area,
-            b"Back",
+            "Back".into(),
             theme::button_clear(),
         ));
         let key_btns = Self::generate_keyboard(&key_grid);
@@ -120,7 +120,11 @@ impl PassphraseKeyboard {
         if text == b" " {
             todo!()
         } else {
-            Child::new(Button::with_text(area, text, theme::button_default()))
+            Child::new(Button::with_text(
+                area,
+                text.into(),
+                theme::button_default(),
+            ))
         }
     }
 
@@ -185,7 +189,8 @@ impl PassphraseKeyboard {
 
     fn key_content(&self, page: usize, key: usize) -> &'static [u8] {
         match self.key_btns[page][key].inner().content() {
-            ButtonContent::Text(text) => text,
+            //ButtonContent::Text(text) => text,
+            ButtonContent::Text(_) => b"FIXME",
             ButtonContent::Image(_) => b" ",
         }
     }

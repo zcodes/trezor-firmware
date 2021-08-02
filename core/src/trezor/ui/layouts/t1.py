@@ -1,4 +1,6 @@
-from trezor import ui, wire
+from trezorui import layout_new_confirm_action
+
+from trezor import log, ui, utils, wire
 from trezor.enums import ButtonRequestType
 from trezor.ui.qr import Qr
 from trezor.utils import chunks, chunks_intersperse
@@ -47,53 +49,35 @@ async def confirm_action(
     exc: ExceptionType = wire.ActionCancelled,
     br_code: ButtonRequestType = ButtonRequestType.Other,
 ) -> None:
-    text = Text(title.upper(), new_lines=False)
-
-    if reverse and description is not None:
-        text.format_parametrized(
-            description,
-            description_param if description_param is not None else "",
-            param_font=description_param_font,
-        )
-    elif action is not None:
-        text.bold(action)
-
-    if action is not None and description is not None:
-        text.br()
-        if larger_vspace:
-            text.br_half()
-
-    if reverse and action is not None:
-        text.bold(action)
-    elif description is not None:
-        text.format_parametrized(
-            description,
-            description_param if description_param is not None else "",
-            param_font=description_param_font,
-        )
-
     if isinstance(verb, bytes) or isinstance(verb_cancel, bytes):
         raise NotImplementedError
 
-    layout: ui.Layout
-    if hold:
-        if verb is None or verb == Confirm.DEFAULT_CONFIRM:
-            verb = HoldToConfirm.DEFAULT_CONFIRM
-        if verb_cancel is None or verb_cancel == Confirm.DEFAULT_CANCEL:
-            verb_cancel = HoldToConfirm.DEFAULT_CANCEL
-        layout = HoldToConfirm(text, confirm=verb, cancel=verb_cancel)
-    else:
-        layout = Confirm(text, confirm=verb, cancel=verb_cancel)
+    if description_param is not None:
+        if description_param_font != ui.BOLD:
+            log.error(__name__, "confirm_action description_param_font not implemented")
+        description = description.format(description_param)
 
-    await raise_if_cancelled(
-        interact(
-            ctx,
-            layout,
-            br_type,
-            br_code,
+    if hold:
+        log.error(__name__, "confirm_action hold not implemented")
+
+    result = await interact(
+        ctx,
+        ui.RustLayout(
+            layout_new_confirm_action(
+                title.upper(),
+                action,
+                description,
+                verb,
+                verb_cancel,
+                hold,
+                reverse,
+            )
         ),
-        exc,
+        br_type,
+        br_code,
     )
+    if result == 1:
+        raise exc
 
 
 async def confirm_reset_device(ctx: wire.GenericContext, prompt: str) -> None:

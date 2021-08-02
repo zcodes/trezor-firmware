@@ -1,6 +1,8 @@
+use crate::micropython::buffer::Buffer;
 use crate::ui::{
     display::{self, Color, Font},
-    geometry::{Offset, Rect},
+    geometry::{Offset, Point, Rect},
+    theme,
 };
 
 use super::base::{Component, Event, EventCtx};
@@ -26,7 +28,7 @@ impl Button {
         }
     }
 
-    pub fn with_text(area: Rect, text: &'static [u8], styles: ButtonStyleSheet) -> Self {
+    pub fn with_text(area: Rect, text: Buffer, styles: ButtonStyleSheet) -> Self {
         Self::new(area, ButtonContent::Text(text), styles)
     }
 
@@ -128,6 +130,7 @@ impl Component for Button {
         None
     }
 
+    #[cfg(feature = "model_t")]
     fn paint(&mut self) {
         let style = self.style();
 
@@ -174,14 +177,83 @@ impl Component for Button {
             }
         }
     }
+
+    #[cfg(feature = "model_1")]
+    fn paint(&mut self) {
+        let style = self.style();
+
+        let is_left = self.area.top_left().x < display::width() / 2;
+        let button_h = 11;
+        let button_y = display::height() - button_h;
+
+        match &self.content {
+            ButtonContent::Text(text) => {
+                let width = display::text_width(text, style.font);
+                let height = display::text_height();
+
+                if style.border_horiz {
+                    display::rounded_rect1(
+                        Rect::from_top_left_and_size(
+                            Point::new(
+                                if is_left {
+                                    0
+                                } else {
+                                    display::width() - width - 3
+                                },
+                                button_y,
+                            ),
+                            Offset::new(width + 3, button_h),
+                        ),
+                        style.background_color,
+                        theme::BG,
+                    );
+                } else {
+                    display::rect(
+                        Rect::from_top_left_and_size(
+                            Point::new(
+                                if is_left {
+                                    0
+                                } else {
+                                    display::width() - width + 1
+                                },
+                                button_y,
+                            ),
+                            Offset::new(width - 1, button_h),
+                        ),
+                        style.background_color,
+                    )
+                }
+
+                let h_border = if style.border_horiz { 2 } else { 0 };
+                let start_of_baseline = if is_left {
+                    Point::new(h_border, button_y + height + 1)
+                } else {
+                    Point::new(
+                        display::width() - h_border + 1 - width,
+                        button_y + height + 1,
+                    )
+                };
+                display::text(
+                    start_of_baseline,
+                    text,
+                    style.font,
+                    style.text_color,
+                    style.background_color,
+                );
+            }
+            ButtonContent::Image(_image) => {
+                todo!();
+            }
+        }
+    }
 }
 
 #[cfg(feature = "ui_debug")]
 impl crate::trace::Trace for Button {
     fn trace(&self, t: &mut dyn crate::trace::Tracer) {
         t.open("Button");
-        match self.content {
-            ButtonContent::Text(text) => t.field("text", &text),
+        match &self.content {
+            ButtonContent::Text(text) => t.field("text", &text.as_ref()),
             ButtonContent::Image(_) => t.symbol("image"),
         }
         t.close();
@@ -197,7 +269,7 @@ enum State {
 }
 
 pub enum ButtonContent {
-    Text(&'static [u8]),
+    Text(Buffer),
     Image(&'static [u8]),
 }
 
@@ -207,6 +279,7 @@ pub struct ButtonStyleSheet {
     pub disabled: &'static ButtonStyle,
 }
 
+#[cfg(feature = "model_t")]
 pub struct ButtonStyle {
     pub font: Font,
     pub text_color: Color,
@@ -215,4 +288,12 @@ pub struct ButtonStyle {
     pub border_color: Color,
     pub border_radius: u8,
     pub border_width: i32,
+}
+
+#[cfg(feature = "model_1")]
+pub struct ButtonStyle {
+    pub font: Font,
+    pub text_color: Color,
+    pub background_color: Color,
+    pub border_horiz: bool,
 }

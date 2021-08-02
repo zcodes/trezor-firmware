@@ -63,17 +63,17 @@ impl PinDialog {
         let grid = Grid::new(area, 5, 3);
         let reset_btn = Child::new(Button::with_text(
             grid.cell(12),
-            b"Reset",
+            "Reset".into(),
             theme::button_clear(),
         ));
         let cancel_btn = Child::new(Button::with_text(
             grid.cell(12),
-            b"Cancel",
+            "Cancel".into(),
             theme::button_cancel(),
         ));
         let confirm_btn = Child::new(Button::with_text(
             grid.cell(14),
-            b"Confirm",
+            "Confirm".into(),
             theme::button_clear(),
         ));
 
@@ -94,7 +94,7 @@ impl PinDialog {
 
     fn generate_digit_buttons(grid: &Grid) -> [Child<Button>; DIGIT_COUNT] {
         // Generate a random sequence of digits from 0 to 9.
-        let mut digits = [b"0", b"1", b"2", b"3", b"4", b"5", b"6", b"7", b"8", b"9"];
+        let mut digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
         random::shuffle(&mut digits);
 
         // Assign the digits to buttons on a 5x3 grid, starting from the second row.
@@ -106,8 +106,12 @@ impl PinDialog {
                 // For the last key (the "0" position) we skip one cell.
                 i + 1 + 3
             });
-            let text: &[u8; 1] = digits[i];
-            Child::new(Button::with_text(area, text, theme::button_default()))
+            let text: &'static str = digits[i];
+            Child::new(Button::with_text(
+                area,
+                text.into(),
+                theme::button_default(),
+            ))
         };
         [
             btn(0),

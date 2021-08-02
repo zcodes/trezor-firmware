@@ -13,3 +13,4 @@ mp_obj_t protobuf_debug_msg_def_type();
 #endif
 
 mp_obj_t ui_layout_new_example(void);
+mp_obj_t ui_layout_new_confirm_action(size_t n_args, const mp_obj_t *args);

@@ -38,6 +38,7 @@ pub fn label_default() -> LabelStyle {
     }
 }
 
+#[cfg(feature = "model_t")]
 pub fn button_default() -> ButtonStyleSheet {
     ButtonStyleSheet {
         normal: &ButtonStyle {
@@ -74,10 +75,59 @@ pub fn button_confirm() -> ButtonStyleSheet {
     button_default()
 }
 
+#[cfg(feature = "model_t")]
 pub fn button_cancel() -> ButtonStyleSheet {
     button_default()
 }
 
 pub fn button_clear() -> ButtonStyleSheet {
     button_default()
+}
+
+#[cfg(feature = "model_1")]
+pub fn button_default() -> ButtonStyleSheet {
+    ButtonStyleSheet {
+        normal: &ButtonStyle {
+            font: FONT_BOLD,
+            text_color: BG,
+            background_color: FG,
+            border_horiz: true,
+        },
+        active: &ButtonStyle {
+            font: FONT_BOLD,
+            text_color: FG,
+            background_color: BG,
+            border_horiz: true,
+        },
+        disabled: &ButtonStyle {
+            font: FONT_BOLD,
+            text_color: FG,
+            background_color: BG,
+            border_horiz: true,
+        },
+    }
+}
+
+#[cfg(feature = "model_1")]
+pub fn button_cancel() -> ButtonStyleSheet {
+    ButtonStyleSheet {
+        normal: &ButtonStyle {
+            font: FONT_BOLD,
+            text_color: FG,
+            background_color: BG,
+            border_horiz: false,
+        },
+        active: &ButtonStyle {
+            font: FONT_BOLD,
+            text_color: BG,
+            background_color: FG,
+            border_horiz: false,
+        },
+        disabled: &ButtonStyle {
+            font: FONT_BOLD,
+            text_color: BG,
+            background_color: FG,
+            border_horiz: false,
+        },
+    }
 }

@@ -31,6 +31,9 @@
 
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(mod_trezorui_layout_new_example_obj,
                                  ui_layout_new_example);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(
+    mod_trezorui_layout_new_confirm_action_obj, 7, 7,
+    ui_layout_new_confirm_action);
 
 STATIC const mp_rom_map_elem_t mp_module_trezorui_globals_table[] = {
     {MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_trezorui)},
@@ -38,6 +41,8 @@ STATIC const mp_rom_map_elem_t mp_module_trezorui_globals_table[] = {
 
     {MP_ROM_QSTR(MP_QSTR_layout_new_example),
      MP_ROM_PTR(&mod_trezorui_layout_new_example_obj)},
+    {MP_ROM_QSTR(MP_QSTR_layout_new_confirm_action),
+     MP_ROM_PTR(&mod_trezorui_layout_new_confirm_action_obj)},
 };
 
 STATIC MP_DEFINE_CONST_DICT(mp_module_trezorui_globals,
