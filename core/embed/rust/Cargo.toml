@@ -8,6 +8,8 @@ build = "build.rs"
 
 [features]
 bitcoin_only = []
+model_t = []
+model_1 = []
 ui_debug = []
 test = ["cc", "glob"]
 

@@ -54,12 +54,18 @@ pub fn text_width(text: &[u8], font: Font) -> i32 {
 }
 
 pub fn text_height() -> i32 {
+    #[cfg(feature = "model_t")]
     const TEXT_HEIGHT: i32 = 16;
+    #[cfg(feature = "model_1")]
+    const TEXT_HEIGHT: i32 = 8;
     TEXT_HEIGHT
 }
 
 pub fn line_height() -> i32 {
+    #[cfg(feature = "model_t")]
     const LINE_HEIGHT: i32 = 26;
+    #[cfg(feature = "model_1")]
+    const LINE_HEIGHT: i32 = 9;
     LINE_HEIGHT
 }
 

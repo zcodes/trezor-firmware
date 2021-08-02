@@ -27,8 +27,17 @@ extern "C" {
     );
 }
 
+#[cfg(feature = "model_t")]
 const WIDTH: i32 = 240;
+
+#[cfg(feature = "model_t")]
 const HEIGHT: i32 = 240;
+
+#[cfg(feature = "model_1")]
+const WIDTH: i32 = 128;
+
+#[cfg(feature = "model_1")]
+const HEIGHT: i32 = 64;
 
 pub fn width() -> i32 {
     WIDTH

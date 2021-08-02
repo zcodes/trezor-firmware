@@ -114,7 +114,7 @@ macro_rules! proto_def_path {
     ($filename:expr) => {
         concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/../../build/firmware/rust/",
+            "/../../build/firmware/rust/thumbv7m-none-eabi/", // doesn't work for TT
             $filename
         )
     };
