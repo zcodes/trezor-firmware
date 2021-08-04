@@ -28,7 +28,7 @@ pub struct MsgObj {
 impl MsgObj {
     pub fn alloc_with_capacity(capacity: usize, msg: &MsgDef) -> Gc<Self> {
         Gc::new(Self {
-            base: Self::obj_type().to_base(),
+            base: Self::obj_type().as_base(),
             map: Map::with_capacity(capacity),
             msg_wire_id: msg.wire_id,
             msg_offset: msg.offset,
@@ -154,7 +154,7 @@ pub struct MsgDefObj {
 impl MsgDefObj {
     pub fn alloc(def: MsgDef) -> Gc<Self> {
         Gc::new(Self {
-            base: Self::obj_type().to_base(),
+            base: Self::obj_type().as_base(),
             def,
         })
     }
@@ -231,7 +231,7 @@ unsafe extern "C" fn msg_def_obj_attr(self_in: Obj, attr: ffi::qstr, dest: *mut 
                 // dest[0] = function_obj
                 // dest[1] = self
                 unsafe {
-                    dest.write(MSG_DEF_OBJ_IS_TYPE_OF_OBJ.to_obj());
+                    dest.write(MSG_DEF_OBJ_IS_TYPE_OF_OBJ.as_obj());
                     dest.offset(1).write(self_in);
                 }
             }

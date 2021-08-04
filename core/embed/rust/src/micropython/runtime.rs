@@ -81,7 +81,7 @@ mod tests {
     #[test]
     fn except_catches_value_error() {
         let msg = unsafe { CStr::from_bytes_with_nul_unchecked(b"msg\0") };
-        let result = except(|| raise_value_error(&msg));
+        let result = except(|| raise_value_error(msg));
         assert!(result.is_err());
     }
 }
