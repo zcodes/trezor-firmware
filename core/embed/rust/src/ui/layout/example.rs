@@ -76,7 +76,7 @@ extern "C" fn ui_layout_new_confirm_action(n_args: usize, args: *const Obj) -> O
         };
 
         let left = verb_cancel
-            .map(|label| |area| Button::with_text(area, label, theme::button_default()));
+            .map(|label| |area| Button::with_text(area, label, theme::button_cancel()));
         let right =
             verb.map(|label| |area| Button::with_text(area, label, theme::button_default()));
 
