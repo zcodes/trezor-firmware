@@ -1,5 +1,6 @@
 #![cfg_attr(not(test), no_std)]
 #![deny(clippy::all)]
+#![allow(clippy::new_without_default)]
 #![deny(unsafe_op_in_unsafe_fn)]
 #![allow(dead_code)]
 
@@ -7,15 +8,17 @@ mod error;
 #[macro_use]
 mod micropython;
 mod protobuf;
+mod trace;
 mod trezorhal;
+mod ui;
 mod util;
 
-#[cfg(not(test))]
+#[cfg(not(feature = "test"))]
 use core::panic::PanicInfo;
-#[cfg(not(test))]
+#[cfg(not(feature = "test"))]
 use cstr_core::CStr;
 
-#[cfg(not(test))]
+#[cfg(not(feature = "test"))]
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     // Although it would be ideal to use the original error message, ignoring it
@@ -25,8 +28,8 @@ fn panic(_info: &PanicInfo) -> ! {
     // confusion.
 
     // SAFETY: Safe because we are passing in \0-terminated literals.
-    let empty = unsafe { CStr::from_bytes_with_nul_unchecked("\0".as_bytes()) };
-    let msg = unsafe { CStr::from_bytes_with_nul_unchecked("rs\0".as_bytes()) };
+    let empty = unsafe { CStr::from_bytes_with_nul_unchecked(b"\0") };
+    let msg = unsafe { CStr::from_bytes_with_nul_unchecked(b"rs\0") };
 
     // TODO: Ideally we would take the file and line info out of
     // `PanicInfo::location()`.
