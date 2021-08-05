@@ -3,19 +3,10 @@ use std::ffi::OsStr;
 use std::{env, path::PathBuf, process::Command};
 
 fn main() {
-    #[cfg(not(feature = "model_1"))]
-    #[cfg(not(feature = "model_t"))]
-    enable_default_model();
-
     generate_qstr_bindings();
     generate_micropython_bindings();
     #[cfg(feature = "test")]
     link_core_objects();
-}
-
-/// Declare the model_t feature if neither model_1 or model_t was given.
-fn enable_default_model() {
-    println!("cargo:rustc-cfg=feature=\"model_t\"");
 }
 
 /// Generates Rust module that exports QSTR constants used in firmware.

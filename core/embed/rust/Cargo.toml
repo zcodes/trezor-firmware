@@ -7,6 +7,7 @@ resolver = "2"
 build = "build.rs"
 
 [features]
+default = ["model_t"]
 bitcoin_only = []
 model_t = []
 model_1 = []

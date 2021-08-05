@@ -674,7 +674,7 @@ def cargo_build():
     if BITCOIN_ONLY == "1":
         features.append("bitcoin_only")
 
-    return f'cd embed/rust; cargo build {profile} --target={RUST_TARGET} --target-dir=../../build/firmware/rust --features "{" ".join(features)}"'
+    return f'cd embed/rust; cargo build {profile} --target={RUST_TARGET} --target-dir=../../build/firmware/rust --no-default-features --features "{" ".join(features)}"'
 
 rust = env.Command(
     target=RUST_LIBPATH,
