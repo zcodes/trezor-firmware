@@ -406,13 +406,53 @@ def wait_until_layout_is_running() -> Awaitable[None]:  # type: ignore
 
 
 class RustLayout(Layout):
+    class TimerToken:
+        def __init__(self) -> None:
+            self.ticking = False
+            self.token = 0
+            self.deadline = 0
+            self.elapsed = 0
+
+        def tick(self) -> bool:
+            if not self.ticking:
+                return False
+            self.elapsed += _RENDER_DELAY_MS
+            if self.elapsed >= self.deadline:
+                self.elapsed %= self.deadline
+                self.ticking = False
+                return True
+            else:
+                return False
+
+        def start(self, token: int, deadline: int) -> None:
+            self.ticking = True
+            self.token = token
+            self.deadline = deadline
+
     def __init__(self, layout):
         self.layout = layout
         self.layout.set_timer_fn(self.set_timer)
+        self.timers: list[self.TimerToken] = [self.TimerToken() for _ in range(4)]
+
+    def handle_rendering(self) -> loop.Task:
+        self._before_render()
+        sleep = self.RENDER_SLEEP
+        while True:
+            yield sleep
+            self.tick()
+            self.dispatch(RENDER, 0, 0)
 
     def set_timer(self, token: int, deadline: int) -> None:
-        # TODO: schedule a timer tick with `token` in `deadline` ms
-        print("timer", token, deadline)
+        for timer in self.timers:
+            if not timer.ticking:
+                timer.start(token, deadline)
+        else:
+            raise RuntimeError("Too many timers")
+
+    def tick(self) -> None:
+        for timer in self.timers:
+            if timer.tick():
+                self.layout.timer(timer.token)
 
     def dispatch(self, event: int, x: int, y: int) -> None:
         msg = None

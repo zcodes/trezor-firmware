@@ -128,8 +128,21 @@ async def handle_Ping(ctx: wire.Context, msg: Ping) -> Success:
     if msg.button_protection:
         from trezor.ui.layouts import confirm_action
         from trezor.enums import ButtonRequestType as B
+        from trezorui import layout_pindialog, CONFIRMED, CANCELLED, UiResult
+        from trezor.ui import RustLayout
 
-        await confirm_action(ctx, "ping", "Confirm", "ping", br_code=B.ProtectCall)
+        result = await RustLayout(layout_pindialog())
+        if result is CONFIRMED:
+            message = "Confirmed"
+        elif result is CANCELLED:
+            message = "Cancelled"
+        else:
+            print(isinstance(result, UiResult))
+            print(type(result), hex(id(result)))
+            print("confirmed is:", hex(id(CONFIRMED)))
+            print("cancelled is:", hex(id(CANCELLED)))
+            message = result
+        await confirm_action(ctx, "ping", "Confirm", message, br_code=B.ProtectCall)
     return Success(message=msg.message)
 
 

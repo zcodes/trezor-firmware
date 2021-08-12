@@ -28,8 +28,38 @@
 #include "librust.h"
 #include "modtrezorui-display.h"
 
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(mod_trezorui_layout_new_example_obj,
+/// class Layout:
+///     """Rust layout"""
+///     def set_timer_fn(self, fn: Callable[[int, int], None]) -> None:
+///         """Set timer callback"""
+///
+///     def touch_start(self, x: int, y: int) -> None:
+///         """Send touch start event"""
+///
+///     def touch_move(self, x: int, y: int) -> None:
+///         """Send touch move event"""
+///
+///     def touch_end(self, x: int, y: int) -> None:
+///         """Send touch end event"""
+///
+///     def timer(self, token: int) -> None:
+///         """Timer tick event"""
+///
+///     def paint(self) -> None:
+///         """Redraw layout"""
+
+/// mock:global
+
+/// def layout_new_example(label: str) -> Layout:
+///     """Rust example layout"""
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_trezorui_layout_new_example_obj,
                                  ui_layout_new_example);
+
+/// def layout_pindialog() -> Layout:
+///     """Rust pin dialog layout"""
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(mod_trezorui_layout_pindialog_obj,
+                                 ui_layout_pindialog);
+
 
 STATIC const mp_rom_map_elem_t mp_module_trezorui_globals_table[] = {
     {MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_trezorui)},
@@ -37,6 +67,12 @@ STATIC const mp_rom_map_elem_t mp_module_trezorui_globals_table[] = {
 
     {MP_ROM_QSTR(MP_QSTR_layout_new_example),
      MP_ROM_PTR(&mod_trezorui_layout_new_example_obj)},
+    {MP_ROM_QSTR(MP_QSTR_layout_pindialog),
+     MP_ROM_PTR(&mod_trezorui_layout_pindialog_obj)},
+
+    {MP_ROM_QSTR(MP_QSTR_UiResult), MP_ROM_PTR(&UI_RESULT_OBJ_TYPE)},
+    {MP_ROM_QSTR(MP_QSTR_CONFIRMED), MP_ROM_PTR(&UI_RESULT_CONFIRMED)},
+    {MP_ROM_QSTR(MP_QSTR_CANCELLED), MP_ROM_PTR(&UI_RESULT_CANCELLED)},
 };
 
 STATIC MP_DEFINE_CONST_DICT(mp_module_trezorui_globals,

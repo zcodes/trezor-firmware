@@ -5,6 +5,8 @@ use crate::ui::{
 
 use super::base::{Component, Event, EventCtx};
 
+const ICON_SIZE: i32 = 16;
+
 pub enum ButtonMsg {
     Clicked,
 }
@@ -170,7 +172,14 @@ impl Component for Button {
                 );
             }
             ButtonContent::Image(_image) => {
-                todo!();
+                let area = Rect::from_center_and_size(
+                    self.area.center(),
+                    Offset {
+                        x: ICON_SIZE,
+                        y: ICON_SIZE,
+                    },
+                );
+                display::icon(area, _image, style.text_color, style.button_color);
             }
         }
     }

@@ -210,3 +210,25 @@ class Display:
         """
         Clears buffers in display saving.
         """
+
+
+# extmod/modtrezorui/modtrezorui.c
+class Layout:
+    """Rust layout"""
+    def set_timer_fn(self, fn: Callable[[int, int], None]) -> None:
+        """Set timer callback"""
+    def touch_start(self, x: int, y: int) -> None:
+        """Send touch start event"""
+    def touch_move(self, x: int, y: int) -> None:
+        """Send touch move event"""
+    def touch_end(self, x: int, y: int) -> None:
+        """Send touch end event"""
+    def timer(self, token: int) -> None:
+        """Timer tick event"""
+    def paint(self) -> None:
+        """Redraw layout"""
+
+
+# extmod/modtrezorui/modtrezorui.c
+def layout_new_example(label: str) -> Layout:
+    """Rust example layout"""

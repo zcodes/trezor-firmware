@@ -1,4 +1,5 @@
-use heapless::Vec;
+use core::str;
+use heapless::{String, Vec};
 
 use crate::trezorhal::random;
 use crate::ui::{
@@ -7,16 +8,25 @@ use crate::ui::{
     theme,
 };
 
+use super::base::PromptResult;
 use super::{
     base::{Child, Component, Event, EventCtx, Never},
     button::{Button, ButtonContent, ButtonMsg::Clicked},
     label::{Label, LabelStyle},
 };
 
-pub enum PinDialogMsg {
-    Confirmed,
-    Cancelled,
+macro_rules! icon {
+    ($filename:expr) => {
+        include_bytes!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../src/trezor/res/",
+            $filename,
+        ))
+    };
 }
+
+const MAX_LENGTH: usize = 9;
+const DIGIT_COUNT: usize = 10; // 0..10
 
 pub struct PinDialog {
     digits: Vec<u8, MAX_LENGTH>,
@@ -28,9 +38,6 @@ pub struct PinDialog {
     confirm_btn: Child<Button>,
     digit_btns: [Child<Button>; DIGIT_COUNT],
 }
-
-const MAX_LENGTH: usize = 9;
-const DIGIT_COUNT: usize = 10; // 0..10
 
 impl PinDialog {
     pub fn new(area: Rect, major_prompt: &'static [u8], minor_prompt: &'static [u8]) -> Self {
@@ -62,18 +69,18 @@ impl PinDialog {
         // Control buttons.
         let grid = Grid::new(area, 5, 3);
         let reset_btn = Child::new(Button::with_text(
-            grid.cell(12),
+            grid.row_col(4, 0),
             b"Reset",
             theme::button_clear(),
         ));
-        let cancel_btn = Child::new(Button::with_text(
-            grid.cell(12),
-            b"Cancel",
+        let cancel_btn = Child::new(Button::with_image(
+            grid.row_col(4, 0),
+            icon!("cancel.toif"),
             theme::button_cancel(),
         ));
-        let confirm_btn = Child::new(Button::with_text(
-            grid.cell(14),
-            b"Confirm",
+        let confirm_btn = Child::new(Button::with_image(
+            grid.row_col(4, 2),
+            icon!("confirm.toif"),
             theme::button_clear(),
         ));
 
@@ -136,32 +143,32 @@ impl PinDialog {
         }
         if self.digits.is_empty() {
             self.reset_btn.mutate(ctx, |ctx, btn| btn.disable(ctx));
-            self.cancel_btn.mutate(ctx, |ctx, btn| btn.disable(ctx));
+            self.cancel_btn.mutate(ctx, |ctx, btn| btn.enable(ctx));
             self.confirm_btn.mutate(ctx, |ctx, btn| btn.disable(ctx));
         } else {
             self.reset_btn.mutate(ctx, |ctx, btn| btn.enable(ctx));
-            self.cancel_btn.mutate(ctx, |ctx, btn| btn.enable(ctx));
+            self.cancel_btn.mutate(ctx, |ctx, btn| btn.disable(ctx));
             self.confirm_btn.mutate(ctx, |ctx, btn| btn.enable(ctx));
         }
         let digit_count = self.digits.len();
         self.dots
             .mutate(ctx, |ctx, dots| dots.update(ctx, digit_count));
     }
-
-    pub fn pin(&self) -> &[u8] {
-        &self.digits
-    }
 }
 
 impl Component for PinDialog {
-    type Msg = PinDialogMsg;
+    type Msg = PromptResult<MAX_LENGTH>;
 
     fn event(&mut self, ctx: &mut EventCtx, event: Event) -> Option<Self::Msg> {
         if let Some(Clicked) = self.confirm_btn.event(ctx, event) {
-            return Some(PinDialogMsg::Confirmed);
+            let mut result = String::new();
+            result
+                .push_str(str::from_utf8(self.digits.as_slice()).unwrap())
+                .unwrap();
+            return Some(PromptResult::Confirmed(result));
         }
         if let Some(Clicked) = self.cancel_btn.event(ctx, event) {
-            return Some(PinDialogMsg::Cancelled);
+            return Some(PromptResult::Cancelled);
         }
         if let Some(Clicked) = self.reset_btn.event(ctx, event) {
             self.digits.clear();
@@ -184,12 +191,13 @@ impl Component for PinDialog {
     }
 
     fn paint(&mut self) {
-        self.major_prompt.paint();
-        self.minor_prompt.paint();
         if self.digits.is_empty() {
             self.cancel_btn.paint();
+            self.major_prompt.paint();
+            self.minor_prompt.paint();
         } else {
             self.reset_btn.paint();
+            self.dots.paint();
         }
         self.confirm_btn.paint();
         for btn in &mut self.digit_btns {

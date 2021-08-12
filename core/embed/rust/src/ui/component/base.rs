@@ -1,7 +1,7 @@
 use core::mem;
 use core::time::Duration;
 
-use heapless::Vec;
+use heapless::{String, Vec};
 
 use crate::ui::geometry::Point;
 
@@ -147,4 +147,14 @@ impl EventCtx {
         self.next_token += 1;
         token
     }
+}
+
+pub enum DialogResult {
+    Confirmed,
+    Cancelled,
+}
+
+pub enum PromptResult<const MAX_LENGTH: usize> {
+    Confirmed(String<MAX_LENGTH>),
+    Cancelled,
 }

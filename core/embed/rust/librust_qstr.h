@@ -18,4 +18,5 @@ static void _librust_qstrs(void) {
   MP_QSTR_timer;
   MP_QSTR_paint;
   MP_QSTR_trace;
+  MP_QSTR_UiResult;
 }

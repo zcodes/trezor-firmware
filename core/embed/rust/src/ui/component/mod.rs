@@ -4,9 +4,10 @@ mod dialog;
 mod empty;
 mod label;
 mod map;
+mod obj;
 mod page;
 mod passphrase;
-mod pin;
+pub mod pin;
 mod swipe;
 pub mod text;
 

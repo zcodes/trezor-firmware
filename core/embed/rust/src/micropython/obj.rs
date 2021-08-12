@@ -1,5 +1,6 @@
 use core::convert::{TryFrom, TryInto};
 use core::num::TryFromIntError;
+use heapless::String;
 
 use crate::error::Error;
 
@@ -19,6 +20,10 @@ impl Eq for Obj {}
 impl Obj {
     pub const unsafe fn from_ptr(ptr: *mut cty::c_void) -> Self {
         Self(ptr)
+    }
+
+    pub const unsafe fn from_static<T>(obj: &'static T) -> Self {
+        Self(obj as *const _ as *mut _)
     }
 
     pub const fn as_ptr(self) -> *mut cty::c_void {
@@ -245,6 +250,16 @@ impl From<&str> for Obj {
     }
 }
 
+/// Strings are converted into `str` MicroPython objects, same way string slices are.
+impl<const N: usize> From<String<N>> for Obj {
+    fn from(val: String<N>) -> Self {
+        // SAFETY:
+        //  - Can raise if allocation fails.
+        //  - `String` is guaranteed to be UTF-8.
+        unsafe { ffi::mp_obj_new_str(val.as_ptr().cast(), val.len()) }
+    }
+}
+
 //
 // # Additional conversions based on the methods above.
 //
@@ -323,5 +338,15 @@ impl TryFrom<Obj> for usize {
 impl From<TryFromIntError> for Error {
     fn from(_: TryFromIntError) -> Self {
         Self::OutOfRange
+    }
+}
+
+impl<T> From<Option<T>> for Obj
+where T: Into<Obj> {
+    fn from(val: Option<T>) -> Self {
+        match val {
+            Some(v) => v.into(),
+            None => Self::const_none(),
+        }
     }
 }

@@ -4,6 +4,7 @@ use crate::{
     micropython::{buffer::Buffer, obj::Obj},
     ui::{
         component::{Button, Child, Component, Dialog, DialogMsg, Never, Text},
+        component::pin::PinDialog,
         display, theme,
     },
 };
@@ -45,6 +46,15 @@ extern "C" fn ui_layout_new_example(param: Obj) -> Obj {
         |area| Button::with_text(area, b"Right", theme::button_default()),
     )))
     .into()
+}
+
+#[no_mangle]
+extern "C" fn ui_layout_pindialog() -> Obj {
+    LayoutObj::new(Child::new(PinDialog::new(
+        display::screen(),
+        b"Enter pin",
+        b"",
+    ))).into()
 }
 
 #[cfg(test)]
