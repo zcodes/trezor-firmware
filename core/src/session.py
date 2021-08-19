@@ -24,6 +24,9 @@ wire.setup(usb.iface_wire)
 if __debug__:
     wire.setup(usb.iface_debug, is_debug_session=True)
 
+import measurement
+measurement.run()
+
 loop.run()
 
 if __debug__:

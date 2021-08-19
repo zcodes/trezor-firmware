@@ -36,6 +36,8 @@ boot
 import boot
 main
 import main
+measurement
+import measurement
 session
 import session
 usb
