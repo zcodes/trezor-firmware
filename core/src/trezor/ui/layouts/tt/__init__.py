@@ -72,7 +72,7 @@ __all__ = (
 
 async def confirm_action(
     ctx: wire.GenericContext,
-    br_type: str,
+    name: str,
     title: str,
     action: str | None = None,
     description: str | None = None,
@@ -127,8 +127,8 @@ async def confirm_action(
         interact(
             ctx,
             cls(text, confirm=verb, cancel=verb_cancel, **kwargs),
-            br_type,
-            br_code,
+            name,
+            br_code=br_code,
         ),
         exc,
     )
@@ -153,7 +153,7 @@ async def confirm_reset_device(
             ctx,
             Confirm(text, major_confirm=not recovery),
             "recover_device" if recovery else "setup_device",
-            ButtonRequestType.ProtectCall
+            br_code=ButtonRequestType.ProtectCall
             if recovery
             else ButtonRequestType.ResetDevice,
         )
@@ -177,7 +177,7 @@ async def confirm_backup(ctx: wire.GenericContext) -> bool:
             ctx,
             Confirm(text1, cancel="Skip", confirm="Back up", major_confirm=True),
             "backup_device",
-            ButtonRequestType.ResetDevice,
+            br_code=ButtonRequestType.ResetDevice,
         )
     ):
         return True
@@ -187,7 +187,7 @@ async def confirm_backup(ctx: wire.GenericContext) -> bool:
             ctx,
             Confirm(text2, cancel="Skip", confirm="Back up", major_confirm=True),
             "backup_device",
-            ButtonRequestType.ResetDevice,
+            br_code=ButtonRequestType.ResetDevice,
         )
     )
     return confirmed
@@ -205,7 +205,7 @@ async def confirm_path_warning(
             ctx,
             Confirm(text),
             "path_warning",
-            ButtonRequestType.UnknownDerivationPath,
+            br_code=ButtonRequestType.UnknownDerivationPath,
         )
     )
 
@@ -291,7 +291,7 @@ async def show_xpub(
             ctx,
             _show_xpub(xpub, title, cancel),
             "show_xpub",
-            ButtonRequestType.PublicKey,
+            br_code=ButtonRequestType.PublicKey,
         )
     )
 
@@ -319,7 +319,7 @@ async def show_address(
                     extra=address_extra,
                 ),
                 "show_address",
-                ButtonRequestType.Address,
+                br_code=ButtonRequestType.Address,
             )
         ):
             break
@@ -332,7 +332,7 @@ async def show_address(
                     cancel="XPUBs" if is_multisig else "Address",
                 ),
                 "show_qr",
-                ButtonRequestType.Address,
+                br_code=ButtonRequestType.Address,
             )
         ):
             break
@@ -347,7 +347,8 @@ async def show_address(
                         ctx,
                         _show_xpub(xpub, title=title_xpub, cancel=cancel),
                         "show_xpub",
-                        ButtonRequestType.PublicKey,
+                        index=i,
+                        br_code=ButtonRequestType.PublicKey,
                     )
                 ):
                     return
@@ -358,7 +359,7 @@ def show_pubkey(
 ) -> Awaitable[None]:
     return confirm_blob(
         ctx,
-        br_type="show_pubkey",
+        name="show_pubkey",
         title="Confirm public key",
         data=pubkey,
         br_code=ButtonRequestType.PublicKey,
@@ -368,7 +369,7 @@ def show_pubkey(
 
 async def _show_modal(
     ctx: wire.GenericContext,
-    br_type: str,
+    name: str,
     br_code: ButtonRequestType,
     header: str,
     subheader: str | None,
@@ -389,8 +390,8 @@ async def _show_modal(
         interact(
             ctx,
             Confirm(text, confirm=button_confirm, cancel=button_cancel),
-            br_type,
-            br_code,
+            name,
+            br_code=br_code,
         ),
         exc,
     )
@@ -398,7 +399,7 @@ async def _show_modal(
 
 async def show_error_and_raise(
     ctx: wire.GenericContext,
-    br_type: str,
+    name: str,
     content: str,
     header: str = "Error",
     subheader: str | None = None,
@@ -408,7 +409,7 @@ async def show_error_and_raise(
 ) -> NoReturn:
     await _show_modal(
         ctx,
-        br_type=br_type,
+        name=name,
         br_code=ButtonRequestType.Other,
         header=header,
         subheader=subheader,
@@ -424,7 +425,7 @@ async def show_error_and_raise(
 
 def show_warning(
     ctx: wire.GenericContext,
-    br_type: str,
+    name: str,
     content: str,
     header: str = "Warning",
     subheader: str | None = None,
@@ -435,7 +436,7 @@ def show_warning(
 ) -> Awaitable[None]:
     return _show_modal(
         ctx,
-        br_type=br_type,
+        name=name,
         br_code=br_code,
         header=header,
         subheader=subheader,
@@ -449,14 +450,14 @@ def show_warning(
 
 def show_success(
     ctx: wire.GenericContext,
-    br_type: str,
+    name: str,
     content: str,
     subheader: str | None = None,
     button: str = "Continue",
 ) -> Awaitable[None]:
     return _show_modal(
         ctx,
-        br_type=br_type,
+        name=name,
         br_code=ButtonRequestType.Success,
         header="Success",
         subheader=subheader,
@@ -470,8 +471,10 @@ def show_success(
 
 async def confirm_output(
     ctx: wire.GenericContext,
+    index: int,
     address: str,
     amount: str,
+    *,
     font_amount: int = ui.NORMAL,  # TODO cleanup @ redesign
     title: str = "Confirm sending",
     subtitle: str | None = None,  # TODO cleanup @ redesign
@@ -500,12 +503,14 @@ async def confirm_output(
         text.mono(*chunks_intersperse(address, width))
         content = Confirm(text)
 
-    await raise_if_cancelled(interact(ctx, content, "confirm_output", br_code))
+    await raise_if_cancelled(
+        interact(ctx, content, name="confirm_output", br_code=br_code, index=index)
+    )
 
 
 async def confirm_blob(
     ctx: wire.GenericContext,
-    br_type: str,
+    name: str,
     title: str,
     data: bytes | str,
     description: str | None = None,
@@ -563,7 +568,7 @@ async def confirm_blob(
             para.append((ui.NORMAL, description))
         para.extend((ui.MONO, line) for line in chunks(data_str, MONO_HEX_PER_LINE - 2))
         content = paginate_paragraphs(para, title, icon, icon_color)
-    await raise_if_cancelled(interact(ctx, content, br_type, br_code))
+    await raise_if_cancelled(interact(ctx, content, name, br_code=br_code))
 
 
 def confirm_address(
@@ -571,7 +576,7 @@ def confirm_address(
     title: str,
     address: str,
     description: str | None = "Address:",
-    br_type: str = "confirm_address",
+    name: str = "confirm_address",
     br_code: ButtonRequestType = ButtonRequestType.Other,
     icon: str = ui.ICON_SEND,  # TODO cleanup @ redesign
     icon_color: int = ui.GREEN,  # TODO cleanup @ redesign
@@ -580,7 +585,7 @@ def confirm_address(
     # destinations and similar
     return confirm_blob(
         ctx,
-        br_type=br_type,
+        name=name,
         title=title,
         data=address,
         description=description,
@@ -592,7 +597,7 @@ def confirm_address(
 
 async def confirm_text(
     ctx: wire.GenericContext,
-    br_type: str,
+    name: str,
     title: str,
     data: str,
     description: str | None = None,
@@ -630,7 +635,7 @@ async def confirm_text(
             para.append((ui.NORMAL, description))
         para.append((ui.BOLD, data))
         content = paginate_paragraphs(para, title, icon, icon_color)
-    await raise_if_cancelled(interact(ctx, content, br_type, br_code))
+    await raise_if_cancelled(interact(ctx, content, name, br_code=br_code))
 
 
 def confirm_amount(
@@ -638,7 +643,7 @@ def confirm_amount(
     title: str,
     amount: str,
     description: str = "Amount:",
-    br_type: str = "confirm_amount",
+    name: str = "confirm_amount",
     br_code: ButtonRequestType = ButtonRequestType.Other,
     icon: str = ui.ICON_SEND,  # TODO cleanup @ redesign
     icon_color: int = ui.GREEN,  # TODO cleanup @ redesign
@@ -648,7 +653,7 @@ def confirm_amount(
     # destinations and similar
     return confirm_text(
         ctx,
-        br_type=br_type,
+        name=name,
         title=title,
         data=amount,
         description=description,
@@ -664,7 +669,7 @@ _SCREEN_FULL_THRESHOLD = const(2)
 # TODO keep name and value on the same page if possible
 async def confirm_properties(
     ctx: wire.GenericContext,
-    br_type: str,
+    name: str,
     title: str,
     props: Sequence[PropertyType],
     icon: str = ui.ICON_SEND,  # TODO cleanup @ redesign
@@ -724,7 +729,7 @@ async def confirm_properties(
     content = paginate_paragraphs(
         para, title, icon, icon_color, confirm=HoldToConfirm if hold else Confirm
     )
-    await raise_if_cancelled(interact(ctx, content, br_type, br_code))
+    await raise_if_cancelled(interact(ctx, content, name, br_code=br_code))
 
 
 async def confirm_total(
@@ -735,7 +740,7 @@ async def confirm_total(
     total_label: str = "Total amount:\n",
     fee_label: str = "\nincluding fee:\n",
     icon_color: int = ui.GREEN,
-    br_type: str = "confirm_total",
+    name: str = "confirm_total",
     br_code: ButtonRequestType = ButtonRequestType.SignTx,
 ) -> None:
     text = Text(title, ui.ICON_SEND, icon_color, new_lines=False)
@@ -743,7 +748,7 @@ async def confirm_total(
     text.bold(total_amount)
     text.normal(fee_label)
     text.bold(fee_amount)
-    await raise_if_cancelled(interact(ctx, HoldToConfirm(text), br_type, br_code))
+    await raise_if_cancelled(interact(ctx, HoldToConfirm(text), name, br_code=br_code))
 
 
 async def confirm_joint_total(
@@ -756,14 +761,17 @@ async def confirm_joint_total(
     text.bold(total_amount)
     await raise_if_cancelled(
         interact(
-            ctx, HoldToConfirm(text), "confirm_joint_total", ButtonRequestType.SignTx
+            ctx,
+            HoldToConfirm(text),
+            "confirm_joint_total",
+            br_code=ButtonRequestType.SignTx,
         )
     )
 
 
 async def confirm_metadata(
     ctx: wire.GenericContext,
-    br_type: str,
+    name: str,
     title: str,
     content: str,
     param: str | None = None,
@@ -788,7 +796,7 @@ async def confirm_metadata(
 
     cls = HoldToConfirm if hold else Confirm
 
-    await raise_if_cancelled(interact(ctx, cls(text), br_type, br_code))
+    await raise_if_cancelled(interact(ctx, cls(text), name, br_code=br_code))
 
 
 async def confirm_replacement(
@@ -798,12 +806,15 @@ async def confirm_replacement(
     text.normal("Confirm transaction ID:\n")
     text.mono(*_truncate_hex(txid, TEXT_MAX_LINES - 1))
     await raise_if_cancelled(
-        interact(ctx, Confirm(text), "confirm_replacement", ButtonRequestType.SignTx)
+        interact(
+            ctx, Confirm(text), "confirm_replacement", br_code=ButtonRequestType.SignTx
+        )
     )
 
 
 async def confirm_modify_output(
     ctx: wire.GenericContext,
+    index: int,
     address: str,
     sign: int,
     amount_change: str,
@@ -829,7 +840,7 @@ async def confirm_modify_output(
             ctx,
             Paginated([page1, Confirm(page2)]),
             "modify_output",
-            ButtonRequestType.ConfirmOutput,
+            br_code=ButtonRequestType.ConfirmOutput,
         )
     )
 
@@ -854,7 +865,9 @@ async def confirm_modify_fee(
     text.normal("Transaction fee:\n")
     text.bold(total_fee_new)
     await raise_if_cancelled(
-        interact(ctx, HoldToConfirm(text), "modify_fee", ButtonRequestType.SignTx)
+        interact(
+            ctx, HoldToConfirm(text), "modify_fee", br_code=ButtonRequestType.SignTx
+        )
     )
 
 
@@ -868,7 +881,9 @@ async def confirm_coinjoin(
     text.normal("Maximum total fees:\n")
     text.bold(total_fee)
     await raise_if_cancelled(
-        interact(ctx, HoldToConfirm(text), "coinjoin_final", ButtonRequestType.Other)
+        interact(
+            ctx, HoldToConfirm(text), "coinjoin_final", br_code=ButtonRequestType.Other
+        )
     )
 
 
@@ -882,7 +897,7 @@ async def confirm_sign_identity(
         text.br()
     text.mono(*chunks_intersperse(identity, 18))
     await raise_if_cancelled(
-        interact(ctx, Confirm(text), "sign_identity", ButtonRequestType.Other)
+        interact(ctx, Confirm(text), "sign_identity", br_code=ButtonRequestType.Other)
     )
 
 
@@ -892,25 +907,25 @@ async def confirm_signverify(
     if address:
         header = "Verify {} message".format(coin)
         font = ui.MONO
-        br_type = "verify_message"
+        name = "verify_message"
 
         text = Text(header, new_lines=False)
         text.bold("Confirm address:\n")
         text.mono(*chunks_intersperse(address, MONO_ADDR_PER_LINE))
         await raise_if_cancelled(
-            interact(ctx, Confirm(text), br_type, ButtonRequestType.Other)
+            interact(ctx, Confirm(text), name, br_code=ButtonRequestType.Other)
         )
     else:
         header = "Sign {} message".format(coin)
         font = ui.NORMAL
-        br_type = "sign_message"
+        name = "sign_message"
 
     await raise_if_cancelled(
         interact(
             ctx,
             paginate_text(message, header, font=font),
-            br_type,
-            ButtonRequestType.Other,
+            name,
+            br_code=ButtonRequestType.Other,
         )
     )
 

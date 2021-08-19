@@ -1,8 +1,7 @@
 from micropython import const
 
-from trezor import loop, res, ui, utils, wire, workflow
+from trezor import loop, res, ui, utils, wire
 from trezor.enums import ButtonRequestType
-from trezor.messages import ButtonAck, ButtonRequest
 
 from .button import Button, ButtonCancel, ButtonConfirm, ButtonDefault
 from .confirm import CANCELLED, CONFIRMED, Confirm
@@ -106,10 +105,13 @@ class Paginated(ui.Layout):
     async def interact(
         self,
         ctx: wire.GenericContext,
-        code: ButtonRequestType = ButtonRequestType.Other,
+        name: str,
+        code: ButtonRequestType,
+        index: int | None,
     ) -> Any:
-        workflow.close_others()
-        await ctx.call(ButtonRequest(code=code, pages=len(self.pages)), ButtonAck)
+        from ...layouts.common import button_request
+
+        await button_request(ctx, name, code=code, index=index, pages=len(self.pages))
         result = WAS_PAGED
         while result is WAS_PAGED:
             result = await ctx.wait(self)

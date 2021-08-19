@@ -23,7 +23,9 @@ async def confirm_total_ethereum(
     text.normal(" ", ui.GREY, "Maximum fee:", ui.FG)
     text.bold(fee_max)
     await raise_if_cancelled(
-        interact(ctx, HoldToConfirm(text), "confirm_total", ButtonRequestType.SignTx)
+        interact(
+            ctx, HoldToConfirm(text), "confirm_total", br_code=ButtonRequestType.SignTx
+        )
     )
 
 
@@ -39,7 +41,9 @@ async def confirm_total_ripple(
     text.mono(*chunks_intersperse(address, MONO_ADDR_PER_LINE))
 
     await raise_if_cancelled(
-        interact(ctx, HoldToConfirm(text), "confirm_output", ButtonRequestType.SignTx)
+        interact(
+            ctx, HoldToConfirm(text), "confirm_output", br_code=ButtonRequestType.SignTx
+        )
     )
 
 
@@ -61,7 +65,10 @@ async def confirm_timebounds_stellar(
 
     await raise_if_cancelled(
         interact(
-            ctx, Confirm(text), "confirm_timebounds", ButtonRequestType.ConfirmOutput
+            ctx,
+            Confirm(text),
+            "confirm_timebounds",
+            br_code=ButtonRequestType.ConfirmOutput,
         )
     )
 
@@ -81,7 +88,10 @@ async def confirm_transfer_binance(
 
     await raise_if_cancelled(
         interact(
-            ctx, Paginated(pages), "confirm_transfer", ButtonRequestType.ConfirmOutput
+            ctx,
+            Paginated(pages),
+            "confirm_transfer",
+            br_code=ButtonRequestType.ConfirmOutput,
         )
     )
 
@@ -100,6 +110,6 @@ async def confirm_decred_sstx_submission(
             ctx,
             Confirm(text),
             "confirm_decred_sstx_submission",
-            ButtonRequestType.ConfirmOutput,
+            br_code=ButtonRequestType.ConfirmOutput,
         )
     )

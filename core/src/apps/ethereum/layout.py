@@ -71,7 +71,7 @@ async def require_confirm_unknown_token(ctx, address_bytes):
         "Unknown token",
         contract_address_hex,
         description="Contract:",
-        br_type="unknown_token",
+        name="unknown_token",
         icon_color=ui.ORANGE,
         br_code=ButtonRequestType.SignTx,
     )

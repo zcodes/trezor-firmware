@@ -33,7 +33,7 @@ async def confirm_source_account(ctx, source_account: str):
         "Confirm operation",
         source_account,
         description="Source account:",
-        br_type="op_source_account",
+        name="op_source_account",
     )
 
 
@@ -55,7 +55,7 @@ async def confirm_account_merge_op(ctx, op: StellarAccountMergeOp):
         "Account Merge",
         op.destination_account,
         description="All XLM will be sent to:",
-        br_type="op_account_merge",
+        name="op_account_merge",
     )
 
 
@@ -75,7 +75,7 @@ async def confirm_change_trust_op(ctx, op: StellarChangeTrustOp):
         title="Delete trust" if op.limit == 0 else "Add trust",
         amount=format_amount(op.limit, op.asset),
         description="Limit:",
-        br_type="op_change_trust",
+        name="op_change_trust",
     )
     await confirm_asset_issuer(ctx, op.asset)
 
@@ -165,7 +165,7 @@ async def confirm_path_payment_op(ctx, op: StellarPathPaymentOp):
         title="Debited amount",
         amount=format_amount(op.send_max, op.send_asset),
         description="Pay at most:",
-        br_type="op_path_payment",
+        name="op_path_payment",
     )
     await confirm_asset_issuer(ctx, op.send_asset)
 
@@ -186,7 +186,7 @@ async def confirm_set_options_op(ctx, op: StellarSetOptionsOp):
             "Inflation",
             op.inflation_destination_account,
             description="Destination:",
-            br_type="op_inflation",
+            name="op_inflation",
         )
 
     if op.clear_flags:
@@ -265,5 +265,5 @@ async def confirm_asset_issuer(ctx, asset: StellarAssetType):
         "Confirm Issuer",
         asset.issuer,
         description="{} issuer:".format(asset.code),
-        br_type="confirm_asset_issuer",
+        name="confirm_asset_issuer",
     )
