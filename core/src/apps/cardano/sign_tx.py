@@ -300,13 +300,14 @@ async def _process_outputs(
 ) -> None:
     """Read, validate, confirm and serialize the outputs, return the total non-change output amount."""
     total_amount = 0
-    for _ in range(outputs_count):
+    for index in range(outputs_count):
         output: CardanoTxOutput = await ctx.call(CardanoTxItemAck(), CardanoTxOutput)
         _validate_output(output, protocol_magic, network_id, account_path_checker)
         if signing_mode == CardanoTxSigningMode.ORDINARY_TRANSACTION:
             await _show_output(
                 ctx,
                 keychain,
+                index,
                 output,
                 signing_mode,
                 protocol_magic,
@@ -654,6 +655,7 @@ def _validate_output(
 async def _show_output(
     ctx: wire.Context,
     keychain: seed.Keychain,
+    index: int,
     output: CardanoTxOutput,
     signing_mode: CardanoTxSigningMode,
     protocol_magic: int,
@@ -685,7 +687,7 @@ async def _show_output(
         await show_warning_tx_output_contains_tokens(ctx)
 
     if signing_mode == CardanoTxSigningMode.ORDINARY_TRANSACTION:
-        await confirm_sending(ctx, output.amount, address)
+        await confirm_sending(ctx, index, output.amount, address)
 
 
 def _validate_asset_group(

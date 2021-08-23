@@ -38,13 +38,18 @@ class UiConfirm:
 
 
 class UiConfirmOutput(UiConfirm):
-    def __init__(self, output: TxOutput, coin: CoinInfo, amount_unit: AmountUnit):
+    def __init__(
+        self, i: int, output: TxOutput, coin: CoinInfo, amount_unit: AmountUnit
+    ):
+        self.i = i
         self.output = output
         self.coin = coin
         self.amount_unit = amount_unit
 
     def confirm_dialog(self, ctx: wire.Context) -> Awaitable[Any]:
-        return layout.confirm_output(ctx, self.output, self.coin, self.amount_unit)
+        return layout.confirm_output(
+            ctx, self.i, self.output, self.coin, self.amount_unit
+        )
 
     __eq__ = utils.obj_eq
 
@@ -64,7 +69,8 @@ class UiConfirmDecredSSTXSubmission(UiConfirm):
 
 
 class UiConfirmReplacement(UiConfirm):
-    def __init__(self, description: str, txid: bytes):
+    def __init__(self, i: int, description: str, txid: bytes):
+        self.i = i
         self.description = description
         self.txid = txid
 
@@ -77,11 +83,13 @@ class UiConfirmReplacement(UiConfirm):
 class UiConfirmModifyOutput(UiConfirm):
     def __init__(
         self,
+        i: int,
         txo: TxOutput,
         orig_txo: TxOutput,
         coin: CoinInfo,
         amount_unit: AmountUnit,
     ):
+        self.i = i
         self.txo = txo
         self.orig_txo = orig_txo
         self.coin = coin
@@ -89,7 +97,7 @@ class UiConfirmModifyOutput(UiConfirm):
 
     def confirm_dialog(self, ctx: wire.Context) -> Awaitable[Any]:
         return layout.confirm_modify_output(
-            ctx, self.txo, self.orig_txo, self.coin, self.amount_unit
+            ctx, self.i, self.txo, self.orig_txo, self.coin, self.amount_unit
         )
 
     __eq__ = utils.obj_eq
@@ -197,39 +205,57 @@ class UiConfirmNonDefaultLocktime(UiConfirm):
     __eq__ = utils.obj_eq
 
 
-def confirm_output(output: TxOutput, coin: CoinInfo, amount_unit: AmountUnit) -> Awaitable[None]:  # type: ignore
-    return (yield UiConfirmOutput(output, coin, amount_unit))
+def confirm_output(  # type: ignore
+    i: int, output: TxOutput, coin: CoinInfo, amount_unit: AmountUnit
+) -> Awaitable[None]:
+    return (yield UiConfirmOutput(i, output, coin, amount_unit))
 
 
-def confirm_decred_sstx_submission(output: TxOutput, coin: CoinInfo, amount_unit: AmountUnit) -> Awaitable[None]:  # type: ignore
+def confirm_decred_sstx_submission(  # type: ignore
+    output: TxOutput, coin: CoinInfo, amount_unit: AmountUnit
+) -> Awaitable[None]:
     return (yield UiConfirmDecredSSTXSubmission(output, coin, amount_unit))
 
 
-def confirm_replacement(description: str, txid: bytes) -> Awaitable[Any]:  # type: ignore
-    return (yield UiConfirmReplacement(description, txid))
+def confirm_replacement(  # type: ignore
+    i, description: str, txid: bytes
+) -> Awaitable[Any]:
+    return (yield UiConfirmReplacement(i, description, txid))
 
 
-def confirm_modify_output(txo: TxOutput, orig_txo: TxOutput, coin: CoinInfo, amount_unit: AmountUnit) -> Awaitable[Any]:  # type: ignore
-    return (yield UiConfirmModifyOutput(txo, orig_txo, coin, amount_unit))
+def confirm_modify_output(  # type: ignore
+    i: int, txo: TxOutput, orig_txo: TxOutput, coin: CoinInfo, amount_unit: AmountUnit
+) -> Awaitable[Any]:
+    return (yield UiConfirmModifyOutput(i, txo, orig_txo, coin, amount_unit))
 
 
-def confirm_modify_fee(user_fee_change: int, total_fee_new: int, coin: CoinInfo, amount_unit: AmountUnit) -> Awaitable[Any]:  # type: ignore
+def confirm_modify_fee(  # type: ignore
+    user_fee_change: int, total_fee_new: int, coin: CoinInfo, amount_unit: AmountUnit
+) -> Awaitable[Any]:
     return (yield UiConfirmModifyFee(user_fee_change, total_fee_new, coin, amount_unit))
 
 
-def confirm_total(spending: int, fee: int, coin: CoinInfo, amount_unit: AmountUnit) -> Awaitable[None]:  # type: ignore
+def confirm_total(  # type: ignore
+    spending: int, fee: int, coin: CoinInfo, amount_unit: AmountUnit
+) -> Awaitable[None]:
     return (yield UiConfirmTotal(spending, fee, coin, amount_unit))
 
 
-def confirm_joint_total(spending: int, total: int, coin: CoinInfo, amount_unit: AmountUnit) -> Awaitable[Any]:  # type: ignore
+def confirm_joint_total(  # type: ignore
+    spending: int, total: int, coin: CoinInfo, amount_unit: AmountUnit
+) -> Awaitable[Any]:
     return (yield UiConfirmJointTotal(spending, total, coin, amount_unit))
 
 
-def confirm_feeoverthreshold(fee: int, coin: CoinInfo, amount_unit: AmountUnit) -> Awaitable[Any]:  # type: ignore
+def confirm_feeoverthreshold(  # type: ignore
+    fee: int, coin: CoinInfo, amount_unit: AmountUnit
+) -> Awaitable[Any]:
     return (yield UiConfirmFeeOverThreshold(fee, coin, amount_unit))
 
 
-def confirm_change_count_over_threshold(change_count: int) -> Awaitable[Any]:  # type: ignore
+def confirm_change_count_over_threshold(  # type: ignore
+    change_count: int,
+) -> Awaitable[Any]:
     return (yield UiConfirmChangeCountOverThreshold(change_count))
 
 
@@ -237,11 +263,15 @@ def confirm_foreign_address(address_n: list) -> Awaitable[Any]:  # type: ignore
     return (yield UiConfirmForeignAddress(address_n))
 
 
-def confirm_nondefault_locktime(lock_time: int, lock_time_disabled: bool) -> Awaitable[Any]:  # type: ignore
+def confirm_nondefault_locktime(  # type: ignore
+    lock_time: int, lock_time_disabled: bool
+) -> Awaitable[Any]:
     return (yield UiConfirmNonDefaultLocktime(lock_time, lock_time_disabled))
 
 
-def request_tx_meta(tx_req: TxRequest, coin: CoinInfo, tx_hash: bytes | None = None) -> Awaitable[PrevTx]:  # type: ignore
+def request_tx_meta(  # type: ignore
+    tx_req: TxRequest, coin: CoinInfo, tx_hash: bytes | None = None
+) -> Awaitable[PrevTx]:
     assert tx_req.details is not None
     tx_req.request_type = RequestType.TXMETA
     tx_req.details.tx_hash = tx_hash
@@ -263,7 +293,9 @@ def request_tx_extra_data(  # type: ignore
     return ack.tx.extra_data_chunk
 
 
-def request_tx_input(tx_req: TxRequest, i: int, coin: CoinInfo, tx_hash: bytes | None = None) -> Awaitable[TxInput]:  # type: ignore
+def request_tx_input(  # type: ignore
+    tx_req: TxRequest, i: int, coin: CoinInfo, tx_hash: bytes | None = None
+) -> Awaitable[TxInput]:
     assert tx_req.details is not None
     if tx_hash:
         tx_req.request_type = RequestType.TXORIGINPUT
@@ -276,7 +308,9 @@ def request_tx_input(tx_req: TxRequest, i: int, coin: CoinInfo, tx_hash: bytes |
     return sanitize_tx_input(ack.tx.input, coin)
 
 
-def request_tx_prev_input(tx_req: TxRequest, i: int, coin: CoinInfo, tx_hash: bytes | None = None) -> Awaitable[PrevInput]:  # type: ignore
+def request_tx_prev_input(  # type: ignore
+    tx_req: TxRequest, i: int, coin: CoinInfo, tx_hash: bytes | None = None
+) -> Awaitable[PrevInput]:
     assert tx_req.details is not None
     tx_req.request_type = RequestType.TXINPUT
     tx_req.details.request_index = i
@@ -286,7 +320,9 @@ def request_tx_prev_input(tx_req: TxRequest, i: int, coin: CoinInfo, tx_hash: by
     return sanitize_tx_prev_input(ack.tx.input, coin)
 
 
-def request_tx_output(tx_req: TxRequest, i: int, coin: CoinInfo, tx_hash: bytes | None = None) -> Awaitable[TxOutput]:  # type: ignore
+def request_tx_output(  # type: ignore
+    tx_req: TxRequest, i: int, coin: CoinInfo, tx_hash: bytes | None = None
+) -> Awaitable[TxOutput]:
     assert tx_req.details is not None
     if tx_hash:
         tx_req.request_type = RequestType.TXORIGOUTPUT
@@ -299,7 +335,9 @@ def request_tx_output(tx_req: TxRequest, i: int, coin: CoinInfo, tx_hash: bytes 
     return sanitize_tx_output(ack.tx.output, coin)
 
 
-def request_tx_prev_output(tx_req: TxRequest, i: int, coin: CoinInfo, tx_hash: bytes | None = None) -> Awaitable[PrevOutput]:  # type: ignore
+def request_tx_prev_output(  # type: ignore
+    tx_req: TxRequest, i: int, coin: CoinInfo, tx_hash: bytes | None = None
+) -> Awaitable[PrevOutput]:
     assert tx_req.details is not None
     tx_req.request_type = RequestType.TXOUTPUT
     tx_req.details.request_index = i

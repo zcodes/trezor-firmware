@@ -39,7 +39,11 @@ def format_coin_amount(amount: int, coin: CoinInfo, amount_unit: AmountUnit) -> 
 
 
 async def confirm_output(
-    ctx: wire.Context, output: TxOutput, coin: CoinInfo, amount_unit: AmountUnit
+    ctx: wire.Context,
+    index: int,
+    output: TxOutput,
+    coin: CoinInfo,
+    amount_unit: AmountUnit,
 ) -> None:
     if output.script_type == OutputScriptType.PAYTOOPRETURN:
         data = output.op_return_data
@@ -48,7 +52,7 @@ async def confirm_output(
             # OMNI transaction
             layout: LayoutType = layouts.confirm_metadata(
                 ctx,
-                "omni_transaction",
+                "output_omni",
                 "OMNI transaction",
                 omni.parse(data),
                 br_code=ButtonRequestType.ConfirmOutput,
@@ -57,7 +61,7 @@ async def confirm_output(
             # generic OP_RETURN
             layout = layouts.confirm_blob(
                 ctx,
-                "op_return",
+                "output_op_return",
                 title="OP_RETURN",
                 data=data,
                 br_code=ButtonRequestType.ConfirmOutput,
@@ -66,14 +70,20 @@ async def confirm_output(
         assert output.address is not None
         address_short = addresses.address_short(coin, output.address)
         layout = layouts.confirm_output(
-            ctx, address_short, format_coin_amount(output.amount, coin, amount_unit)
+            ctx,
+            index,
+            address_short,
+            format_coin_amount(output.amount, coin, amount_unit),
         )
 
     await layout
 
 
 async def confirm_decred_sstx_submission(
-    ctx: wire.Context, output: TxOutput, coin: CoinInfo, amount_unit: AmountUnit
+    ctx: wire.Context,
+    output: TxOutput,
+    coin: CoinInfo,
+    amount_unit: AmountUnit,
 ) -> None:
     assert output.address is not None
     address_short = addresses.address_short(coin, output.address)
@@ -93,6 +103,7 @@ async def confirm_replacement(ctx: wire.Context, description: str, txid: bytes) 
 
 async def confirm_modify_output(
     ctx: wire.Context,
+    index: int,
     txo: TxOutput,
     orig_txo: TxOutput,
     coin: CoinInfo,
@@ -103,6 +114,7 @@ async def confirm_modify_output(
     amount_change = txo.amount - orig_txo.amount
     await layouts.confirm_modify_output(
         ctx,
+        index,
         address_short,
         amount_change,
         format_coin_amount(abs(amount_change), coin, amount_unit),

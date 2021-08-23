@@ -66,11 +66,13 @@ def is_printable_ascii_bytestring(bytestr: bytes) -> bool:
 
 async def confirm_sending(
     ctx: wire.Context,
+    index: int,
     ada_amount: int,
     to: str,
 ) -> None:
     await confirm_output(
         ctx,
+        index,
         to,
         format_coin_amount(ada_amount),
         title="Confirm transaction",
