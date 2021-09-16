@@ -119,8 +119,9 @@ message EthereumMessageSignature {
  * @next Failure
  */
 message EthereumSignTypedData {
-    repeated uint32 address_n = 1;           // BIP-32 path to derive the key from master node
-    optional bool use_v4 = 2 [default=true]; // use EIP-712 (v4) for typed data signing
+    repeated uint32 address_n = 1;                       // BIP-32 path to derive the key from master node
+    required string primary_type = 2;                    // name of the root message struct
+    optional bool metamask_v4_compat = 3 [default=true]; // use MetaMask v4 (see https://github.com/MetaMask/eth-sig-util/issues/106)
 }
 
 /**
@@ -136,6 +137,52 @@ message EthereumTypedDataRequest {
     optional bool expect_type   = 2; // if true, then device expects type info, otherwise value
     optional bytes signature    = 3; // signature of the message
     optional string address     = 4; // address used to sign the message
+}
+
+message EthereumTypedDataStructRequest {
+    required string name = 1; // name of the requested struct
+}
+
+message EthereumTypedDataStructAck {
+    repeated EthereumStructMember members = 1;
+
+    message EthereumStructMember {
+        required EthereumFieldType type = 1;
+        required string name = 2;
+    }
+
+    message EthereumFieldType {
+        required EthereumDataType data_type = 1;
+        optional uint32 size = 2;                   // for integer types: size in bytes (uint8 has size 1, uint256 has size 32)
+                                                    // for bytes types: size in bytes, or unset for dynamic
+                                                    // for arrays: size in elements, or unset for dynamic
+                                                    // for structs: number of members
+                                                    // for string, bool and address: unset
+        optional EthereumFieldType entry_type = 3;  // for array types, type of single entry
+    }
+
+    enum EthereumDataType {
+        UINT = 1;
+        INT = 2;
+        BYTES = 3;
+        STRING = 4;
+        BOOL = 5;
+        ADDRESS = 6;
+        ARRAY = 7;
+        STRUCT = 8;
+    }
+}
+
+message EthereumTypedDataValueRequest {
+    repeated uint32 member_path = 1; // member path requested by device
+}
+
+message EthereumTypedDataValueAck {
+    required bytes value = 1; 
+    // * atomic types: value of the member.
+    //   Length must match the `size` of the corresponding field type.
+    // * array types: number of elements, encoded as uint16.
+    // * struct types: undefined, Trezor will not query a struct field.
 }
 
 /**
