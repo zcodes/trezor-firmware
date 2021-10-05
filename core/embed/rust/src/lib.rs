@@ -11,6 +11,8 @@ mod protobuf;
 #[cfg(feature = "ui_debug")]
 mod trace;
 mod trezorhal;
+
+#[cfg(feature = "ui")]
 #[macro_use]
 mod ui;
 mod util;
