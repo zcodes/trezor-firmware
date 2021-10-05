@@ -13,3 +13,7 @@ mp_obj_t protobuf_debug_msg_def_type();
 #endif
 
 mp_obj_t ui_layout_new_example(mp_obj_t);
+
+#ifdef TREZOR_EMULATOR
+mp_obj_t ui_debug_layout_type();
+#endif

@@ -694,6 +694,8 @@ def cargo_build():
         features.append("bitcoin_only")
     if NEW_UI:
         features.append("ui")
+        if PYOPT == "0":
+            features.append("ui_debug")
 
     return f'cd embed/rust; cargo build {profile} --target={RUST_TARGET} --target-dir=../../build/firmware/rust --features "{" ".join(features)}"'
 

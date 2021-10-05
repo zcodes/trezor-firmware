@@ -335,6 +335,12 @@ extern "C" fn ui_layout_paint(this: Obj) -> Obj {
 }
 
 #[cfg(feature = "ui_debug")]
+#[no_mangle]
+pub extern "C" fn ui_debug_layout_type() -> &'static Type {
+    LayoutObj::obj_type()
+}
+
+#[cfg(feature = "ui_debug")]
 extern "C" fn ui_layout_trace(this: Obj, callback: Obj) -> Obj {
     let block = || {
         let this: Gc<LayoutObj> = this.try_into()?;
