@@ -38,13 +38,20 @@ pub fn rounded_rect(r: Rect, fg_color: Color, bg_color: Color, radius: u8) {
     );
 }
 
-pub fn icon(r: Rect, data: &[u8], fg_color: Color, bg_color: Color) {
+pub fn icon(center: Point, data: &[u8], fg_color: Color, bg_color: Color) {
+    let toif_info = display::toif_info(data).unwrap();
+    assert!(toif_info.grayscale);
+
+    let r = Rect::from_center_and_size(
+        center,
+        Offset::new(toif_info.width as _, toif_info.height as _),
+    );
     display::icon(
         r.x0,
         r.y0,
         r.width(),
         r.height(),
-        data,
+        &data[12..], // skip TOIF header
         fg_color.into(),
         bg_color.into(),
     );

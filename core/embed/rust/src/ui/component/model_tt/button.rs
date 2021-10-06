@@ -171,9 +171,12 @@ impl Component for Button {
                 );
             }
             ButtonContent::Icon(icon) => {
-                let size = Offset::uniform(theme::ICON_SIZE);
-                let area = Rect::from_center_and_size(self.area.center(), size);
-                display::icon(area, icon, style.text_color, style.button_color);
+                display::icon(
+                    self.area.center(),
+                    icon,
+                    style.text_color,
+                    style.button_color,
+                );
             }
         }
     }

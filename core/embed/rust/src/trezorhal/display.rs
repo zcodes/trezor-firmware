@@ -35,10 +35,23 @@ extern "C" {
         fgcolor: cty::uint16_t,
         bgcolor: cty::uint16_t,
     );
+    fn display_toif_info(
+        data: *const cty::uint8_t,
+        len: cty::uint32_t,
+        out_w: *mut cty::uint16_t,
+        out_h: *mut cty::uint16_t,
+        out_grayscale: *mut bool,
+    ) -> bool;
 }
 
 const WIDTH: i32 = 240;
 const HEIGHT: i32 = 240;
+
+pub struct ToifInfo {
+    pub width: u16,
+    pub height: u16,
+    pub grayscale: bool,
+}
 
 pub fn width() -> i32 {
     WIDTH
@@ -90,5 +103,28 @@ pub fn icon(x: i32, y: i32, w: i32, h: i32, data: &[u8], fgcolor: u16, bgcolor: 
             fgcolor,
             bgcolor,
         )
+    }
+}
+
+pub fn toif_info(data: &[u8]) -> Result<ToifInfo, ()> {
+    let mut width: cty::uint16_t = 0;
+    let mut height: cty::uint16_t = 0;
+    let mut grayscale: bool = false;
+    if unsafe {
+        display_toif_info(
+            data.as_ptr() as _,
+            data.len() as _,
+            &mut width,
+            &mut height,
+            &mut grayscale,
+        )
+    } {
+        Ok(ToifInfo {
+            width,
+            height,
+            grayscale,
+        })
+    } else {
+        Err(())
     }
 }
