@@ -12,7 +12,7 @@ from trezor.enums import InputScriptType
 
 from .. import common, ownership
 
-if False:
+if TYPE_CHECKING:
     from trezor.messages import TxInput
 
 # transaction header size: 4 byte version

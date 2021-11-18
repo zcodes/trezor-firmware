@@ -17,8 +17,9 @@ from trezor.ui.layouts.tt.altcoin import confirm_total_ethereum
 from . import networks, tokens
 from .helpers import address_from_bytes, decode_typed_data, get_type_name
 
-if False:
+if TYPE_CHECKING:
     from typing import Awaitable, Iterable, Optional
+
     from trezor.wire import Context
 
 

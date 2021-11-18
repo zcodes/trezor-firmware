@@ -22,7 +22,7 @@ from . import approvers, helpers, progress
 from .sig_hasher import BitcoinSigHasher
 from .tx_info import OriginalTxInfo, TxInfo
 
-if False:
+if TYPE_CHECKING:
     from typing import Sequence
 
     from trezor.crypto import bip32

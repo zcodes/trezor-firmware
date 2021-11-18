@@ -10,7 +10,7 @@ from apps.common.signverify import decode_message, message_digest
 from .addresses import address_short, get_address
 from .keychain import validate_path_against_script_type, with_keychain
 
-if False:
+if TYPE_CHECKING:
     from trezor.messages import SignMessage
 
     from apps.common.coininfo import CoinInfo
