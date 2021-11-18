@@ -124,12 +124,6 @@ def sign_challenge(
     sigtype: str | coininfo.CoinInfo,
     curve: str,
 ) -> bytes:
-    if curve == "secp256k1":
-        from trezor.crypto.curve import secp256k1
-    elif curve == "nist256p1":
-        from trezor.crypto.curve import nist256p1
-    elif curve == "ed25519":
-        from trezor.crypto.curve import ed25519
     from apps.common.signverify import message_digest
 
     if sigtype == "gpg":
@@ -154,10 +148,13 @@ def sign_challenge(
         raise wire.DataError("Unsupported sigtype")
 
     if curve == "secp256k1":
+        from trezor.crypto.curve import secp256k1
         signature = secp256k1.sign(seckey, data)
     elif curve == "nist256p1":
+        from trezor.crypto.curve import nist256p1
         signature = nist256p1.sign(seckey, data)
     elif curve == "ed25519":
+        from trezor.crypto.curve import ed25519
         signature = ed25519.sign(seckey, data)
     else:
         raise wire.DataError("Unknown curve")
