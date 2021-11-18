@@ -19,6 +19,7 @@ from .scripts import (
     write_input_script_p2wsh_in_p2sh,
 )
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Sequence
     from apps.common.coininfo import CoinInfo

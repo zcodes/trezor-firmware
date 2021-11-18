@@ -12,6 +12,7 @@ from trezor.enums import InputScriptType
 
 from .. import common, ownership
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import TxInput
 

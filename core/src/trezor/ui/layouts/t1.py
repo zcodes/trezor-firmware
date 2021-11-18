@@ -5,6 +5,7 @@ from trezorui2 import layout_new_confirm_action
 
 from .common import interact
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import NoReturn, Type, Union
 

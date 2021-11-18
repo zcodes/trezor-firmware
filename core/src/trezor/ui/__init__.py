@@ -6,6 +6,7 @@ from trezorui import Display
 
 from trezor import io, loop, res, utils, workflow
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Any, Awaitable, Generator, TypeVar
 

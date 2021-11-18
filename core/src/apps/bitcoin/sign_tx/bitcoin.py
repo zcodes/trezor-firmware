@@ -22,6 +22,7 @@ from . import approvers, helpers, progress
 from .sig_hasher import BitcoinSigHasher
 from .tx_info import OriginalTxInfo, TxInfo
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Sequence
 

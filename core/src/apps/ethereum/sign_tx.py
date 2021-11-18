@@ -17,6 +17,7 @@ from .layout import (
     require_confirm_unknown_token,
 )
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Tuple
 

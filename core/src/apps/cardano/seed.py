@@ -8,6 +8,7 @@ from apps.common.seed import derive_and_store_roots, get_seed
 
 from .helpers import paths
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Callable, Awaitable, TypeVar, Union
 
