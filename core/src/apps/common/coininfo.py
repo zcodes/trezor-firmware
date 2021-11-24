@@ -4,7 +4,7 @@ from trezor import utils
 from trezor.crypto.base58 import blake256d_32, groestl512d_32, keccak_32, sha256d_32
 from trezor.crypto.scripts import blake256_ripemd160, sha256_ripemd160
 
-from typing import TYPE_CHECKING, Any, Type
+from typing import Any, Type
 
 # flake8: noqa
 
@@ -90,7 +90,7 @@ class CoinInfo:
 
 # fmt: off
 def by_name(name: str) -> CoinInfo:
-    if TYPE_CHECKING:
+    if False:
         pass
     elif name == "Bitcoin":
         return CoinInfo(
@@ -180,7 +180,7 @@ def by_name(name: str) -> CoinInfo:
             confidential_assets=None,
         )
     if not utils.BITCOIN_ONLY:
-        if TYPE_CHECKING:
+        if False:
             pass
         elif name == "Actinium":
             return CoinInfo(

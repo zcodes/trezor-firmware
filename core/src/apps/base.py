@@ -6,10 +6,9 @@ from trezor.messages import Success
 
 from . import workflow_handlers
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NoReturn
 if TYPE_CHECKING:
     from trezor import protobuf
-    from typing import NoReturn
     from trezor.messages import (
         Features,
         Initialize,

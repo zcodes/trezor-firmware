@@ -4,7 +4,7 @@ from trezor import utils
 from trezor.crypto.base58 import blake256d_32, groestl512d_32, keccak_32, sha256d_32
 from trezor.crypto.scripts import blake256_ripemd160, sha256_ripemd160
 
-from typing import TYPE_CHECKING, Any, Type
+from typing import Any, Type
 
 # flake8: noqa
 
@@ -140,7 +140,7 @@ for c in coins_btc + coins_alt:
 
 %>\
 def by_name(name: str) -> CoinInfo:
-    if TYPE_CHECKING:
+    if False:
         pass
 % for coin in coins_btc:
     elif name == ${black_repr(coin["coin_name"])}:
@@ -151,7 +151,7 @@ def by_name(name: str) -> CoinInfo:
         )
 % endfor
     if not utils.BITCOIN_ONLY:
-        if TYPE_CHECKING:
+        if False:
             pass
 % for coin in coins_alt:
         elif name == ${black_repr(coin["coin_name"])}:
