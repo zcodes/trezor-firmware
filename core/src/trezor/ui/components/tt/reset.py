@@ -50,6 +50,8 @@ class Slip39NumInput(ui.Component):
                 header = "Set num. of groups"
             elif self.step is Slip39NumInput.SET_GROUP_THRESHOLD:
                 header = "Set group threshold"
+            else:
+                raise ValueError  # unknown self.step
             ui.header(header, ui.ICON_RESET, ui.TITLE_GREY, ui.BG, ui.ORANGE_ICON)
 
             # render the counter

@@ -154,7 +154,7 @@ if TYPE_CHECKING:
         ) -> None:
             ...
 
-        def update(self, buf: bytes) -> None:
+        def update(self, data: bytes) -> None:
             ...
 
         def digest(self) -> bytes:

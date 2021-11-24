@@ -164,6 +164,8 @@ class Button(ui.Component):
                 s = self.disabled_style
             elif self.state is _PRESSED:
                 s = self.active_style
+            else:
+                raise ValueError  # unknown self.state
             ax, ay, aw, ah = self.area
             self.render_background(s, ax, ay, aw, ah)
             self.render_content(s, ax, ay, aw, ah)
