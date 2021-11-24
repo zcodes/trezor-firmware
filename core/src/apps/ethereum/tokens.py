@@ -3,8 +3,6 @@
 # flake8: noqa
 # fmt: off
 
-from typing import TYPE_CHECKING
-
 class TokenInfo:
     def __init__(self, symbol: str, decimals: int) -> None:
         self.symbol = symbol
@@ -14,10 +12,10 @@ UNKNOWN_TOKEN = TokenInfo("Wei UNKN", 0)
 
 
 def token_by_chain_address(chain_id: int, address: bytes) -> TokenInfo:
-    if TYPE_CHECKING:
+    if False:
         pass
     elif chain_id == 1:
-        if TYPE_CHECKING:
+        if False:
             pass
         elif address == b"\x4e\x84\xe9\xe5\xfb\x0a\x97\x26\x28\xcf\x45\x68\xc4\x03\x16\x7e\xf1\xd4\x04\x31":
             return TokenInfo("$FFC", 18)  # eth / $Fluzcoin
