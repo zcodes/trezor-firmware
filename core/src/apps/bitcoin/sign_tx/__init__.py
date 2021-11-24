@@ -9,10 +9,8 @@ from . import approvers, bitcoin, helpers, progress
 if not utils.BITCOIN_ONLY:
     from . import bitcoinlike, decred, zcash
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol, Union
 if TYPE_CHECKING:
-    from typing import Protocol, Union
-
     from trezor.messages import (
         SignTx,
         TxAckInput,

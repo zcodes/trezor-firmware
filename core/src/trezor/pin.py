@@ -1,8 +1,6 @@
 from trezor import utils
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Any
+from typing import Any
 
 
 _previous_progress: int | None = None

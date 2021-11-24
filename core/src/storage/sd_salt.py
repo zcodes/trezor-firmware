@@ -5,10 +5,8 @@ from trezor import io
 from trezor.sdcard import with_filesystem
 from trezor.utils import consteq
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar, Callable
 if TYPE_CHECKING:
-    from typing import TypeVar, Callable
-
     T = TypeVar("T", bound=Callable)
 
 SD_CARD_HOT_SWAPPABLE = False

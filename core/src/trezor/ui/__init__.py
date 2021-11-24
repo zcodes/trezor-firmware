@@ -6,10 +6,8 @@ from trezorui import Display
 
 from trezor import io, loop, res, utils, workflow
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Awaitable, Generator, TypeVar
 if TYPE_CHECKING:
-    from typing import Any, Awaitable, Generator, TypeVar
-
     Pos = tuple[int, int]
     Area = tuple[int, int, int, int]
     ResultValue = TypeVar("ResultValue")

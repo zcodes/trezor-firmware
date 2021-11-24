@@ -4,10 +4,9 @@ from .button import Button
 from .num_input import NumInput
 from .text import Text
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, NoReturn, Sequence
 if TYPE_CHECKING:
     from trezor import loop
-    from typing import Callable, NoReturn, Sequence
 
 if __debug__:
     from apps import debug

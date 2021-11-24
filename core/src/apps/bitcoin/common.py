@@ -7,10 +7,9 @@ from trezor.crypto.hashlib import sha256
 from trezor.enums import InputScriptType, OutputScriptType
 from trezor.utils import HashWriter, ensure
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple
 if TYPE_CHECKING:
     from enum import IntEnum
-    from typing import Tuple
     from apps.common.coininfo import CoinInfo
     from trezor.messages import TxInput
 else:

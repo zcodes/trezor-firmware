@@ -1,9 +1,7 @@
 from trezor import loop, ui, wire
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Any, Awaitable, TypeVar
 if TYPE_CHECKING:
-    from typing import Callable, Any, Awaitable, TypeVar
-
     T = TypeVar("T")
 
 CONFIRMED = object()

@@ -23,10 +23,8 @@ from .writers import (
     write_op_push,
 )
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 if TYPE_CHECKING:
-    from typing import Sequence
-
     from trezor.messages import MultisigRedeemScriptType, TxInput
 
     from apps.common.coininfo import CoinInfo

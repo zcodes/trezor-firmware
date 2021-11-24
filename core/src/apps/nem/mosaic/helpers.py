@@ -1,9 +1,7 @@
 from .nem_mosaics import mosaics
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
-    from typing import Any
-
     MosaicDict = dict[str, Any]
 
 

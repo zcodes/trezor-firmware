@@ -20,10 +20,9 @@
 
 """Reference implementation for Bech32/Bech32m and segwit addresses."""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence, Union, TypeVar
 if TYPE_CHECKING:
     from enum import IntEnum
-    from typing import Sequence, Union, TypeVar
 
     A = TypeVar("A")
     B = TypeVar("B")

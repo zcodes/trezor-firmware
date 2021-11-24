@@ -16,18 +16,12 @@ from .text import (
     Text,
 )
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Iterable
 if TYPE_CHECKING:
-    from typing import Callable, Iterable
-
     from ..common.text import TextContent
 
 
 WAS_PAGED = object()
-
-
-if TYPE_CHECKING:
-    from typing import Any
 
 
 def render_scrollbar(pages: int, page: int) -> None:

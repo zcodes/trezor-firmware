@@ -9,10 +9,8 @@ from apps.common.request_pin import (
     request_pin_and_sd_salt,
 )
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Awaitable
 if TYPE_CHECKING:
-    from typing import Awaitable
-
     from trezor.messages import ChangeWipeCode
 
 

@@ -17,10 +17,8 @@ from .layout import (
     require_confirm_unknown_token,
 )
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple
 if TYPE_CHECKING:
-    from typing import Tuple
-
     from apps.common.keychain import Keychain
 
     from .keychain import EthereumSignTxAny

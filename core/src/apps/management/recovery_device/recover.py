@@ -5,10 +5,9 @@ from trezor.errors import MnemonicError
 
 from .. import backup_types
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 if TYPE_CHECKING:
     from trezor.enums import BackupType
-    from typing import Union
 
 
 class RecoveryAborted(Exception):

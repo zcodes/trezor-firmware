@@ -3,10 +3,8 @@ from trezorcrypto import random  # avoid pulling in trezor.crypto
 
 from trezor import utils
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence, TypeVar, overload, Awaitable, Callable
 if TYPE_CHECKING:
-    from typing import Sequence, TypeVar, overload
-
     T = TypeVar("T")
 
 else:
@@ -259,8 +257,6 @@ def delete(key: int) -> None:
 
 
 if TYPE_CHECKING:
-    from typing import Awaitable, Callable, TypeVar
-
     ByteFunc = TypeVar("ByteFunc", bound=Callable[..., bytes])
     AsyncByteFunc = TypeVar("AsyncByteFunc", bound=Callable[..., Awaitable[bytes]])
 

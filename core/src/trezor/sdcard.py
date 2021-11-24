@@ -5,10 +5,8 @@ try:
 except Exception:
     HAVE_SDCARD = False
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 if TYPE_CHECKING:
-    from typing import Any, Callable, TypeVar
-
     T = TypeVar("T", bound=Callable)
 
 

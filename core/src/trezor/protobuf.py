@@ -11,10 +11,8 @@ type_for_wire = trezorproto.type_for_wire
 # of the built-in metaclass MsgDef. MessageType instances are in fact instances of
 # the built-in type Msg. That is why isinstance checks do not work, and instead the
 # MessageTypeSubclass.is_type_of() method must be used.
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type, TypeGuard, TypeVar
 if TYPE_CHECKING:
-    from typing import Type, TypeGuard, TypeVar
-
     T = TypeVar("T", bound="MessageType")
 
     class MsgDef(type):

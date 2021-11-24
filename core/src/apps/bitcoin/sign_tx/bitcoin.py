@@ -22,10 +22,8 @@ from . import approvers, helpers, progress
 from .sig_hasher import BitcoinSigHasher
 from .tx_info import OriginalTxInfo, TxInfo
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 if TYPE_CHECKING:
-    from typing import Sequence
-
     from trezor.crypto import bip32
 
     from trezor.messages import (

@@ -2,9 +2,7 @@ from micropython import const
 
 from trezor import io, loop, ui
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Generator
+from typing import Generator
 
 SWIPE_UP = const(0x01)
 SWIPE_DOWN = const(0x02)

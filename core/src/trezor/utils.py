@@ -13,7 +13,16 @@ from trezorutils import (  # noqa: F401
     memcpy,
 )
 
-from typing import TYPE_CHECKING
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Iterator,
+    Protocol,
+    Union,
+    TypeVar,
+    Sequence,
+    Set,
+)
 
 DISABLE_ANIMATION = 0
 
@@ -27,16 +36,6 @@ if __debug__:
         LOG_MEMORY = 0
 
 if TYPE_CHECKING:
-    from typing import (
-        Any,
-        Iterator,
-        Protocol,
-        Union,
-        TypeVar,
-        Sequence,
-        Set,
-    )
-
     from trezor.protobuf import MessageType
 
 

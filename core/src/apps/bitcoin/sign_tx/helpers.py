@@ -23,9 +23,8 @@ from .. import common
 from ..writers import TX_HASH_SIZE
 from . import layout
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Awaitable
 if TYPE_CHECKING:
-    from typing import Any, Awaitable
     from trezor.enums import AmountUnit
 
 

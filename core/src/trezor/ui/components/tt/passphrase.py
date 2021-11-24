@@ -6,9 +6,8 @@ from trezor.ui import display
 from .button import Button, ButtonClear, ButtonConfirm
 from .swipe import SWIPE_HORIZONTAL, SWIPE_LEFT, Swipe
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 if TYPE_CHECKING:
-    from typing import Iterable
     from .button import ButtonContent, ButtonStyleStateType
 
 SPACE = res.load(ui.ICON_SPACE)

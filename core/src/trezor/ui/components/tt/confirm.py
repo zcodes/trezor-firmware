@@ -6,9 +6,8 @@ from trezor.ui.loader import Loader, LoaderDefault
 from ..common.confirm import CANCELLED, CONFIRMED, INFO, ConfirmBase, Pageable
 from .button import Button, ButtonAbort, ButtonCancel, ButtonConfirm, ButtonDefault
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
-    from typing import Any
     from .button import ButtonContent, ButtonStyleType
     from trezor.ui.loader import LoaderStyleType
 

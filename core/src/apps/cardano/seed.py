@@ -8,10 +8,8 @@ from apps.common.seed import derive_and_store_roots, get_seed
 
 from .helpers import paths
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Awaitable, TypeVar, Union
 if TYPE_CHECKING:
-    from typing import Callable, Awaitable, TypeVar, Union
-
     from apps.common.paths import Bip32Path
     from apps.common.keychain import MsgOut, Handler
 

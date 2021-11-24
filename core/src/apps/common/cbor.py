@@ -9,10 +9,8 @@ from trezor import log, utils
 
 from . import readers
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Generic, Iterator, Tuple, TypeVar, Union
 if TYPE_CHECKING:
-    from typing import Any, Generic, Iterator, Tuple, TypeVar, Union
-
     K = TypeVar("K")
     V = TypeVar("V")
     Value = Any

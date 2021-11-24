@@ -12,9 +12,7 @@ from apps.common.paths import HARDENED
 
 from . import common
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Iterable
+from typing import Iterable
 
 # Credential ID values
 _CRED_ID_VERSION = b"\xf1\xd0\x02\x00"

@@ -16,10 +16,8 @@ from .layout import (
 )
 from .sign_tx import check_common_fields, handle_erc20, send_request_chunk
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple
 if TYPE_CHECKING:
-    from typing import Tuple
-
     from trezor.messages import EthereumSignTxEIP1559
 
     from apps.common.keychain import Keychain

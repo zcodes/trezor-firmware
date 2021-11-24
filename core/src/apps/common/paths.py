@@ -2,17 +2,17 @@ from micropython import const
 
 HARDENED = const(0x8000_0000)
 
-from typing import TYPE_CHECKING
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Collection,
+    Container,
+    Iterable,
+    Sequence,
+    TypeVar,
+)
 if TYPE_CHECKING:
-    from typing import (
-        Any,
-        Callable,
-        Collection,
-        Container,
-        Iterable,
-        Sequence,
-        TypeVar,
-    )
     from typing_extensions import Protocol
     from trezor import wire
 

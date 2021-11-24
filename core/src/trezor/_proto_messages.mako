@@ -4,11 +4,7 @@
 
 from trezor import protobuf
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import TYPE_CHECKING, Any, TypeGuard
-else:
-    TYPE_CHECKING = False
+from typing import TYPE_CHECKING, Any, TypeGuard
 
 
 def __getattr__(name: str) -> Any:

@@ -47,6 +47,7 @@ from trezor.wire.errors import ActionCancelled, DataError, Error
 from trezor.wire.errors import *  # isort:skip # noqa: F401,F403
 
 from typing import (
+    TYPE_CHECKING,
     Any,
     Awaitable,
     Callable,
@@ -54,7 +55,7 @@ from typing import (
     Coroutine,
     Iterable,
     TypeVar,
-    TYPE_CHECKING,
+    Protocol,
 )
 
 if TYPE_CHECKING:
@@ -75,8 +76,6 @@ def setup(iface: WireInterface, is_debug_session: bool = False) -> None:
 
 
 if TYPE_CHECKING:
-    from typing import Protocol, TypeVar
-
     LoadedMessageType = TypeVar("LoadedMessageType", bound=protobuf.MessageType)
 
     class GenericContext(Protocol):

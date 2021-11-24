@@ -3,9 +3,7 @@
 
 from apps.common.paths import HARDENED
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Iterator
+from typing import Iterator
 
 
 def shortcut_by_chain_id(chain_id: int) -> str:

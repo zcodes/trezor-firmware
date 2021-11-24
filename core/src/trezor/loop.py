@@ -12,16 +12,15 @@ import utimeq
 
 from trezor import io, log
 
-from typing import TYPE_CHECKING
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Coroutine,
+    Generator,
+)
 if TYPE_CHECKING:
-    from typing import (
-        Any,
-        Awaitable,
-        Callable,
-        Coroutine,
-        Generator,
-    )
-
     Task = Coroutine
     Finalizer = Callable[[Task, Any], None]
 

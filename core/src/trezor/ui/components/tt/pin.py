@@ -6,10 +6,9 @@ from trezor.ui import display
 
 from .button import Button, ButtonCancel, ButtonClear, ButtonConfirm, ButtonMono
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 if TYPE_CHECKING:
     from trezor import loop
-    from typing import Iterable
 
 
 def digit_area(i: int) -> ui.Area:

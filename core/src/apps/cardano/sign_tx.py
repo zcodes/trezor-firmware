@@ -105,9 +105,8 @@ from .layout import (
 )
 from .seed import is_byron_path, is_multisig_path, is_shelley_path
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Union
 if TYPE_CHECKING:
-    from typing import Any, Union
     from apps.common.paths import PathSchema
 
     CardanoTxResponseType = Union[CardanoTxItemAck, CardanoTxWitnessResponse]

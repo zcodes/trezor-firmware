@@ -15,10 +15,8 @@ from ...constants import (
 LINE_WIDTH = ui.WIDTH - TEXT_MARGIN_LEFT
 LINE_WIDTH_PAGINATED = LINE_WIDTH - PAGINATION_MARGIN_RIGHT
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Sequence, Union
 if TYPE_CHECKING:
-    from typing import Any, Sequence, Union
-
     TextContent = Union[str, int]
 
 # needs to be different from all colors and font ids

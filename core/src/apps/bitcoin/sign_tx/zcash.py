@@ -23,9 +23,8 @@ from ..writers import (
 from . import approvers, helpers
 from .bitcoinlike import Bitcoinlike
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 if TYPE_CHECKING:
-    from typing import Sequence
     from apps.common import coininfo
     from .sig_hasher import SigHasher
     from .tx_info import OriginalTxInfo, TxInfo

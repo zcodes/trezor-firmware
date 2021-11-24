@@ -5,10 +5,8 @@ from trezorui2 import layout_new_confirm_action
 
 from .common import interact
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NoReturn, Type, Union
 if TYPE_CHECKING:
-    from typing import NoReturn, Type, Union
-
     ExceptionType = Union[BaseException, Type[BaseException]]
 
 

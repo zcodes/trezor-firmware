@@ -7,9 +7,8 @@ from apps.common import coininfo
 from .. import scripts, writers
 from ..common import tagged_hashwriter
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol, Sequence
 if TYPE_CHECKING:
-    from typing import Protocol, Sequence
     from ..common import SigHashType
 
     class SigHasher(Protocol):
