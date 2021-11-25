@@ -118,7 +118,7 @@ class WebUsbTransport(ProtocolBasedTransport):
         if cls.context is None:
             cls.context = usb1.USBContext()
             cls.context.open()
-            atexit.register(cls.context.close)  # type: ignore [Param spec "_P@register" has no bound value]
+            atexit.register(cls.context.close)  # pyright: ignore [Param spec "_P@register" has no bound value]
         devices: List["WebUsbTransport"] = []
         for dev in cls.context.getDeviceIterator(skip_on_error=True):
             usb_id = (dev.getVendorID(), dev.getProductID())
