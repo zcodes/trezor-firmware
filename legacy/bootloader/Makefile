@@ -18,7 +18,7 @@ OBJS += ../vendor/trezor-crypto/sha2.small.o
 OBJS += ../vendor/trezor-crypto/memzero.small.o
 OBJS += ../vendor/trezor-crypto/hmac_drbg.small.o
 
-OPTFLAGS ?= -Os
+OPTFLAGS ?= -Os -flto
 
 include ../Makefile.include
 
