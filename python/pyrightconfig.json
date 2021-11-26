@@ -5,6 +5,7 @@
         "helper-scripts"
     ],
     "typeCheckingMode": "basic",
+    "enableTypeIgnoreComments": false,
     "reportMissingImports": false,
     "reportUntypedFunctionDecorator": true,
     "reportUntypedClassDecorator": true,
