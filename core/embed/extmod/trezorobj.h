@@ -77,9 +77,9 @@ static inline uint8_t trezor_obj_get_uint8(mp_obj_t obj) {
 
 static inline uint64_t trezor_obj_get_uint64(mp_const_obj_t obj) {
   if (obj == mp_const_false) {
-    return 0;
+    mp_raise_TypeError("bool unexpected");
   } else if (obj == mp_const_true) {
-    return 1;
+    mp_raise_TypeError("bool unexpected");
   } else if (MP_OBJ_IS_SMALL_INT(obj)) {
     mp_int_t i = MP_OBJ_SMALL_INT_VALUE(obj);
     mp_uint_t u = i;
