@@ -18,7 +18,7 @@ if False:
     from apps.common.coininfo import CoinInfo
     from apps.common.keychain import Keychain
 
-_MAX_COORDINATOR_LEN = const(18)
+_MAX_COORDINATOR_LEN = const(100)
 
 
 @with_keychain
