@@ -389,11 +389,13 @@ connect test core:
     - nix-shell -p autoPatchelfHook SDL2 SDL2_image --run "autoPatchelf /trezor-user-env/src/binaries/firmware/bin/trezor-emu-core-v2.99.99"
   script:
     - /trezor-user-env/run.sh &
-    - nix-shell --run "tests/connect_tests/connect_tests.sh 2.99.99"
+    - nix-shell --run "tests/connect_tests/connect_tests.sh 2.99.99 > tests/connect_tests/debugging.log"
   after_script:
     - cp /trezor-user-env/logs/debugging.log trezor-user-env-debugging.log
+    - cp tests/connect_tests/debugging.log connect-tests-debugging.log
   artifacts:
     paths:
       - trezor-user-env-debugging.log
+      - connect-tests-debugging.log
     expire_in: 1 week
     when: always
