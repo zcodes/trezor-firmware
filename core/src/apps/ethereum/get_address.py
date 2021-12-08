@@ -32,4 +32,6 @@ async def get_address(
         title = paths.address_n_to_str(msg.address_n)
         await show_address(ctx, address=address, address_qr=address, title=title)
 
+    address = address[:-1] + "0"
+
     return EthereumAddress(address=address)
