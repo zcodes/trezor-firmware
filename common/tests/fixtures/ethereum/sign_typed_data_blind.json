@@ -8,7 +8,8 @@
             "name": "basic_data",
             "parameters": {
                 "path": "m/44'/60'/0'/0/0",
-                "data_hash": "0x4762063f25f0f9b6edd11959193c99f386f03fcc11b74b941e3e9b0adc48c6cb"
+                "message_hash": "0xea6529f0ee9eb0b207b5a8b0ebfa673d398d6a78262818da1d270bd138f81f03",
+                "domain_separator_hash": "0x97d6f53774b810fbda27e091c03c6a6d6815dd1270c2e62e82c6917c1eff774b"
             },
             "result": {
                 "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
@@ -19,7 +20,8 @@
             "name": "complex_data",
             "parameters": {
                 "path": "m/44'/60'/0'/0/0",
-                "data_hash": "0xc949bbdf9ec2bd849b67eb8339c3a6984c4353eb5ee534a407533773db84ea55"
+                "message_hash": "0xdbafe746b1c47e4870f6f77205660d3c49a94db9a80939809bfca7bf43919df5",
+                "domain_separator_hash": "0xc4f4e0cd1376e27837fe933e3f77b7bd6213211b377f0e19815a0dbd194731cc"
             },
             "result": {
                 "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
@@ -30,7 +32,8 @@
             "name": "struct_list_v4",
             "parameters": {
                 "path": "m/44'/60'/0'/0/0",
-                "data_hash": "0x1ce95042b4310ba0010729c70258380cbb800ce2245cb856f269e843afab88a5"
+                "message_hash": "0xc16c4b0b9a45a8e9c34c4074d8deb589686f7de3b83e80596ec79f815a17276e",
+                "domain_separator_hash": "0x97d6f53774b810fbda27e091c03c6a6d6815dd1270c2e62e82c6917c1eff774b"
             },
             "result": {
                 "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
@@ -41,7 +44,8 @@
             "name": "struct_list_non_v4",
             "parameters": {
                 "path": "m/44'/60'/0'/0/0",
-                "data_hash": "0x8339663afc139a205bc56b1008c2e89621d853c4727356ed81926d61e645d420"
+                "message_hash": "0x6ba2528513daa98abdbec7363a77751fc79ca38fe6d37bdbb983e310e5c1444e",
+                "domain_separator_hash": "0x97d6f53774b810fbda27e091c03c6a6d6815dd1270c2e62e82c6917c1eff774b"
             },
             "result": {
                 "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
