@@ -172,6 +172,96 @@ class ClickUI:
                 raise Cancelled from None
 
 
+class ScriptUI:
+    def __init__(
+        self, always_prompt: bool = False, passphrase_on_host: bool = False
+    ) -> None:
+        self.pinmatrix_shown = False
+        self.prompt_shown = False
+        self.always_prompt = always_prompt
+        self.passphrase_on_host = passphrase_on_host
+
+    def button_request(self, _br: messages.ButtonRequest) -> None:
+        if not self.prompt_shown:
+            click.echo("Please confirm action on your Trezor device.")
+        if not self.always_prompt:
+            self.prompt_shown = True
+
+    def get_pin(self, code: Optional[PinMatrixRequestType] = None) -> str:
+        if code == PIN_CURRENT:
+            desc = "current PIN"
+        elif code == PIN_NEW:
+            desc = "new PIN"
+        elif code == PIN_CONFIRM:
+            desc = "new PIN again"
+        elif code == WIPE_CODE_NEW:
+            desc = "new wipe code"
+        elif code == WIPE_CODE_CONFIRM:
+            desc = "new wipe code again"
+        else:
+            desc = "PIN"
+
+        if not self.pinmatrix_shown:
+            click.echo(PIN_MATRIX_DESCRIPTION)
+            if not self.always_prompt:
+                self.pinmatrix_shown = True
+
+        while True:
+            try:
+                click.echo(f"Please enter {desc}")
+                # NOTE: click.prompt() had needs a string argument and adds ":" at the line
+                pin = input()
+            except click.Abort:
+                raise Cancelled from None
+
+            # translate letters to numbers if letters were used
+            if all(d in "cvbdfgert" for d in pin):
+                pin = pin.translate(str.maketrans("cvbdfgert", "123456789"))
+
+            if any(d not in "123456789" for d in pin):
+                click.echo(
+                    "The value may only consist of digits 1 to 9 or letters cvbdfgert."
+                )
+            elif len(pin) > MAX_PIN_LENGTH:
+                click.echo(
+                    f"The value must be at most {MAX_PIN_LENGTH} digits in length."
+                )
+            else:
+                return pin
+
+    def get_passphrase(self, available_on_device: bool) -> Union[str, object]:
+        if available_on_device and not self.passphrase_on_host:
+            return PASSPHRASE_ON_DEVICE
+
+        env_passphrase = os.getenv("PASSPHRASE")
+        if env_passphrase is not None:
+            click.echo("Passphrase required. Using PASSPHRASE environment variable.")
+            return env_passphrase
+
+        while True:
+            try:
+                passphrase = click.prompt(
+                    "Passphrase required",
+                    hide_input=True,
+                    default="",
+                    show_default=False,
+                )
+                # In case user sees the input on the screen, we do not need confirmation
+                if not CAN_HANDLE_HIDDEN_INPUT:
+                    return passphrase
+                second = click.prompt(
+                    "Confirm your passphrase",
+                    default="",
+                    show_default=False,
+                )
+                if passphrase == second:
+                    return passphrase
+                else:
+                    click.echo("Passphrase did not match. Please try again.")
+            except click.Abort:
+                raise Cancelled from None
+
+
 def mnemonic_words(
     expand: bool = False, language: str = "english"
 ) -> Callable[[WordRequestType], str]:

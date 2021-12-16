@@ -156,6 +156,12 @@ def configure_logging(verbose: int) -> None:
     help="Enter passphrase on host.",
 )
 @click.option(
+    "-S",
+    "--script",
+    is_flag=True,
+    help="Use UI for usage in scripts.",
+)
+@click.option(
     "-s",
     "--session-id",
     metavar="HEX",
@@ -170,6 +176,7 @@ def cli_main(
     verbose: int,
     is_json: bool,
     passphrase_on_host: bool,
+    script: bool,
     session_id: Optional[str],
 ) -> None:
     configure_logging(verbose)
@@ -181,7 +188,7 @@ def cli_main(
         except ValueError:
             raise click.ClickException(f"Not a valid session id: {session_id}")
 
-    ctx.obj = TrezorConnection(path, bytes_session_id, passphrase_on_host)
+    ctx.obj = TrezorConnection(path, bytes_session_id, passphrase_on_host, script)
 
 
 # Creating a cli function that has the right types for future usage

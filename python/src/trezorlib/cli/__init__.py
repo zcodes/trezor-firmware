@@ -17,14 +17,14 @@
 import functools
 import sys
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Union
 
 import click
 
 from .. import exceptions
 from ..client import TrezorClient
 from ..transport import Transport, get_transport
-from ..ui import ClickUI
+from ..ui import ClickUI, ScriptUI
 
 if TYPE_CHECKING:
     # Needed to enforce a return value from decorators
@@ -50,11 +50,16 @@ class ChoiceType(click.Choice):
 
 class TrezorConnection:
     def __init__(
-        self, path: str, session_id: Optional[bytes], passphrase_on_host: bool
+        self,
+        path: str,
+        session_id: Optional[bytes],
+        passphrase_on_host: bool,
+        script: bool,
     ) -> None:
         self.path = path
         self.session_id = session_id
         self.passphrase_on_host = passphrase_on_host
+        self.script = script
 
     def get_transport(self) -> Transport:
         try:
@@ -68,8 +73,11 @@ class TrezorConnection:
         # if this fails, we want the exception to bubble up to the caller
         return get_transport(self.path, prefix_search=True)
 
-    def get_ui(self) -> ClickUI:
-        return ClickUI(passphrase_on_host=self.passphrase_on_host)
+    def get_ui(self) -> Union[ClickUI, ScriptUI]:
+        if self.script:
+            return ScriptUI(passphrase_on_host=self.passphrase_on_host)
+        else:
+            return ClickUI(passphrase_on_host=self.passphrase_on_host)
 
     def get_client(self) -> TrezorClient:
         transport = self.get_transport()
