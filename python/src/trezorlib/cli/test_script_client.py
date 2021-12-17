@@ -10,7 +10,6 @@ def get_address() -> str:
         args,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
         text=True,
         shell=True,
         bufsize=0

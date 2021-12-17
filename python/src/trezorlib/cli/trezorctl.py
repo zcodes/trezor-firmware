@@ -196,18 +196,17 @@ cli = cast(TrezorctlGroup, cli_main)
 
 
 @cli.resultcallback()
-def print_result(res: Any, is_json: bool, **kwargs: Any) -> None:
+def print_result(res: Any, is_json: bool, script: bool, **kwargs: Any) -> None:
     if is_json:
         if isinstance(res, protobuf.MessageType):
-            # JSON cannot convert bytes, so transforming it into strings
-            # TODO: we could somehow decode it, for example as hex as it is mostly hashes
-            # TODO: it should be done recursively, not only on top level
-            for key, value in res.__dict__.items():
-                if isinstance(value, bytes):
-                    res.__setattr__(key, str(value))
-            click.echo(json.dumps({res.__class__.__name__: res.__dict__}))
+            res_dict = protobuf.to_dict(res, hexlify_bytes=True)
+            click.echo(json.dumps({res.__class__.__name__: res_dict}))
         else:
-            click.echo(json.dumps(res, sort_keys=True, indent=4))
+            # Printing the result on one line for scripts, with indent for CLI users
+            if script:
+                click.echo(json.dumps(res))
+            else:
+                click.echo(json.dumps(res, sort_keys=True, indent=4))
     else:
         if isinstance(res, list):
             for line in res:
