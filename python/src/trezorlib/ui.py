@@ -181,7 +181,8 @@ class ScriptUI:
         self.always_prompt = always_prompt
         self.passphrase_on_host = passphrase_on_host
 
-    def button_request(self, _br: messages.ButtonRequest) -> None:
+    def button_request(self, br: messages.ButtonRequest) -> None:
+        click.echo(br)
         if not self.prompt_shown:
             click.echo("Please confirm action on your Trezor device.")
         if not self.always_prompt:
@@ -209,9 +210,9 @@ class ScriptUI:
         while True:
             try:
                 click.echo(f"Please enter {desc}")
-                # NOTE: click.prompt() had needs a string argument and adds ":" at the line
+                # NOTE: click.prompt() needs a string argument and adds ":" at the line
                 pin = input()
-            except click.Abort:
+            except KeyboardInterrupt:
                 raise Cancelled from None
 
             # translate letters to numbers if letters were used
@@ -240,24 +241,9 @@ class ScriptUI:
 
         while True:
             try:
-                passphrase = click.prompt(
-                    "Passphrase required",
-                    hide_input=True,
-                    default="",
-                    show_default=False,
-                )
-                # In case user sees the input on the screen, we do not need confirmation
-                if not CAN_HANDLE_HIDDEN_INPUT:
-                    return passphrase
-                second = click.prompt(
-                    "Confirm your passphrase",
-                    default="",
-                    show_default=False,
-                )
-                if passphrase == second:
-                    return passphrase
-                else:
-                    click.echo("Passphrase did not match. Please try again.")
+                click.echo("Please enter passphrase")
+                passphrase = input()
+                return passphrase
             except click.Abort:
                 raise Cancelled from None
 

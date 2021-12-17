@@ -2,7 +2,7 @@ import subprocess
 import os
 
 
-def get_address():
+def get_address() -> str:
     args = """
         trezorctl --script get-address -n "m/49'/0'/0'/0/0"
     """.strip()
@@ -13,19 +13,24 @@ def get_address():
         stderr=subprocess.STDOUT,
         text=True,
         shell=True,
+        bufsize=0
     )
 
-    new_line = ""
-    while "Please enter" not in new_line:
-        new_line = p.stdout.readline()
-        print(new_line, end="")
+    result_address = ""
+    while True:
+        line = p.stdout.readline()
+        if not line:
+            break
+        print(line, end="")
+        if "Please enter" in line:
+            user_input = input()
+            p.stdin.write(user_input + "\n")
 
-    pin = input()
+        # Address will appear as the very last line
+        result_address = line
 
-    p.stdin.write(pin)
-
-    stdout, stderr = p.communicate()
-    print("result", stdout.strip())
+    print("Address:", result_address)
+    return result_address
 
 
 def clear_session_to_enable_pin():
