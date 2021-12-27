@@ -7,8 +7,6 @@ CFLAGS += "-I.."
 all: reference_signer unit_tests
 
 SRCS = base10.c \
-	base58.c \
-	blake2b-ref.c \
 	sha256.c \
 	crypto.c \
 	pasta_fp.c \
@@ -17,7 +15,14 @@ SRCS = base10.c \
 	utils.c \
 	curve_checks.c \
 	../sha2.c \
-	../memzero.c
+	../memzero.c \
+	../base58.c \
+	../blake2b.c \
+	../hasher.c \
+	../blake256.c \
+	../ripemd160.c \
+	../sha3.c \
+	../groestl.c
 
 OBJS = $(SRCS:.c=.o)
 

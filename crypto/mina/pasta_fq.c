@@ -2044,14 +2044,6 @@ void fiat_pasta_fq_divstep(uint64_t* out1, uint64_t out2[5], uint64_t out3[5], u
 #include <stddef.h>
 #include <stdio.h>
 
-/* void fiat_pasta_fq_print(const uint64_t x[4]) { */
-/*     printf("[ "); */
-/*     for (size_t j = 0; j < 4; ++j) { */
-/*       printf("0x%lld, ", x[j]); */
-/*     } */
-/*     printf("] \n"); */
-/* } */
-
 bool fiat_pasta_fq_equals(const uint64_t x[4], const uint64_t y[4]) {
   uint64_t x_minus_y[4];
   fiat_pasta_fq_sub(x_minus_y, x, y);

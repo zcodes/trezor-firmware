@@ -32,8 +32,8 @@
 #include "poseidon.h"
 #include "pasta_fp.h"
 #include "pasta_fq.h"
-#include "blake2.h"
-#include "libbase58.h"
+#include "../blake2b.h"
+#include "../base58.h"
 #include "sha256.h"
 
 // a = 0, b = 5
@@ -629,18 +629,6 @@ bool affine_is_on_curve(const Affine *p)
     return group_is_on_curve(&gp);
 }
 
-/* void roinput_print_fields(const ROInput *input) { */
-/*   for (size_t i = 0; i < LIMBS_PER_FIELD * input->fields_len; ++i) { */
-/*     printf("fs[%zu] = 0x%lld\n", i, input->fields[i]); */
-/*   } */
-/* } */
-
-/* void roinput_print_bits(const ROInput *input) { */
-/*   for (size_t i = 0; i < input->bits_len; ++i) { */
-/*     printf("bs[%zu] = %u\n", i, packed_bit_array_get(input->bits, i)); */
-/*   } */
-/* } */
-
 // input for poseidon
 void roinput_add_field(ROInput *input, const Field a) {
   int remaining = (int)input->fields_capacity - (int)input->fields_len;
@@ -925,7 +913,7 @@ void message_derive(Scalar out, const Keypair *kp, const ROInput *msg, uint8_t n
     roinput_to_bytes(input_bytes, &input);
 
     uint8_t hash_out[32];
-    blake2b(hash_out, 32, input_bytes, input_size_in_bytes, NULL, 0);
+    blake2b(input_bytes, input_size_in_bytes, hash_out, 32);
 
     // take 254 bits / drop the top 2 bits
     packed_bit_array_set(hash_out, 255, 0);
@@ -1018,7 +1006,7 @@ bool decompress(Affine *pt, const Compressed *compressed) {
 void read_public_key_compressed(Compressed *out, const char *pubkeyBase58) {
   size_t pubkeyBytesLen = 40;
   unsigned char pubkeyBytes[40];
-  b58tobin(pubkeyBytes, &pubkeyBytesLen, pubkeyBase58, 0);
+  b58tobin(pubkeyBytes, &pubkeyBytesLen, pubkeyBase58);
 
   uint64_t x_coord_non_montgomery[4] = { 0, 0, 0, 0 };
 
