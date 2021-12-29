@@ -4,7 +4,7 @@ endif
 
 CFLAGS += "-I.."
 
-all: reference_signer unit_tests
+all: reference_signer unit_tests my_test
 
 SRCS = base10.c \
 	sha256.c \
@@ -30,6 +30,9 @@ OBJS = $(SRCS:.c=.o)
 reference_signer: $(OBJS) reference_signer.c
 	$(CC) $(CFLAGS) -Wall -Werror $@.c -o $@ $(OBJS) -lm
 
+my_test: $(OBJS) my_test.c
+	$(CC) $(CFLAGS) -Wall -Werror $@.c -o $@ $(OBJS) -lm
+
 .PRECIOUS: unit_tests
 unit_tests: $(OBJS) *.c *.h
 	$(CC) $(CFLAGS) -Wall -Werror $@.c -o $@ $(OBJS) -lm
@@ -39,4 +42,4 @@ unit_tests: $(OBJS) *.c *.h
 	$(CC) $(CFLAGS) -o $*.o -c $<
 
 clean:
-	rm -rf *.o *.log reference_signer unit_tests
+	rm -rf *.o *.log reference_signer unit_tests my_test
