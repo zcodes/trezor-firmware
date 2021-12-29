@@ -32,9 +32,14 @@
 #include "poseidon.h"
 #include "pasta_fp.h"
 #include "pasta_fq.h"
+#include "sha256.h"
 #include "../blake2b.h"
 #include "../base58.h"
-#include "sha256.h"
+#ifdef RAND_PLATFORM_INDEPENDENT
+#include "../rand.h"
+#else
+#include <stdio.h>
+#endif
 
 // a = 0, b = 5
 static const Field GROUP_COEFF_B = {
@@ -74,44 +79,44 @@ static const Affine AFFINE_ONE = {
 };
 
 #define DBL_EPSILON 2.22044604925031308085e-16
-#define FORCE_EVAL(x) do {                        \
-	if (sizeof(x) == sizeof(float)) {         \
-		volatile float __x;               \
-		__x = (x);                        \
-                (void)__x;                        \
-	} else if (sizeof(x) == sizeof(double)) { \
-		volatile double __x;              \
-		__x = (x);                        \
-                (void)__x;                        \
-	} else {                                  \
-		volatile long double __x;         \
-		__x = (x);                        \
-                (void)__x;                        \
-	}                                         \
+#define FORCE_EVAL(x) do {                \
+    if (sizeof(x) == sizeof(float)) {     \
+        volatile float __x;               \
+        __x = (x);                        \
+        (void)__x;                        \
+    } else if (sizeof(x) == sizeof(double)) { \
+        volatile double __x;                  \
+        __x = (x);                            \
+        (void)__x;                            \
+    } else {                                  \
+        volatile long double __x;             \
+        __x = (x);                            \
+        (void)__x;                            \
+    }                                         \
 } while(0)
 
 double ceil(double x)
 {
-	union {double f; uint64_t i;} u = {x};
-	int e = u.i >> 52 & 0x7ff;
-	double y;
+    union {double f; uint64_t i;} u = {x};
+    int e = u.i >> 52 & 0x7ff;
+    double y;
     const double toint = 1 / DBL_EPSILON;
 
-	if (e >= 0x3ff+52 || x == 0)
-		return x;
-	/* y = int(x) - x, where int(x) is an integer neighbor of x */
-	if (u.i >> 63)
-		y = x - toint + toint - x;
-	else
-		y = x + toint - toint - x;
-	/* special case because of non-nearest rounding modes */
-	if (e <= 0x3ff-1) {
-		FORCE_EVAL(y);
-		return u.i >> 63 ? -0.0 : 1;
-	}
-	if (y < 0)
-		return x + y + 1;
-	return x + y;
+    if (e >= 0x3ff+52 || x == 0)
+        return x;
+    /* y = int(x) - x, where int(x) is an integer neighbor of x */
+    if (u.i >> 63)
+        y = x - toint + toint - x;
+    else
+        y = x + toint - toint - x;
+    /* special case because of non-nearest rounding modes */
+    if (e <= 0x3ff-1) {
+        FORCE_EVAL(y);
+        return u.i >> 63 ? -0.0 : 1;
+    }
+    if (y < 0)
+        return x + y + 1;
+    return x + y;
 }
 
 
@@ -128,51 +133,51 @@ Lg7 = 1.479819860511658591e-01;  /* 3FC2F112 DF3E5244 */
 
 double log(double x)
 {
-	union {double f; uint64_t i;} u = {x};
-	double hfsq,f,s,z,R,w,t1,t2,dk,t;
-	uint32_t hx;
-	int k;
+    union {double f; uint64_t i;} u = {x};
+    double hfsq,f,s,z,R,w,t1,t2,dk,t;
+    uint32_t hx;
+    int k;
 
-	hx = u.i>>32;
-	k = 0;
-	if (hx < 0x00100000 || hx>>31) {
-		if (u.i<<1 == 0)
-			return -1/(x*x);  /* log(+-0)=-inf */
-		if (hx>>31) {
+    hx = u.i>>32;
+    k = 0;
+    if (hx < 0x00100000 || hx>>31) {
+        if (u.i<<1 == 0)
+            return -1/(x*x);  /* log(+-0)=-inf */
+        if (hx>>31) {
             t = 0.0;
-			return (x-x)/t; /* log(-#) = NaN */
+            return (x-x)/t; /* log(-#) = NaN */
         }
-		/* subnormal number, scale x up */
-		k -= 54;
+        /* subnormal number, scale x up */
+        k -= 54;
         t = 0x1p54;
-		x *= t;
-		u.f = x;
-		hx = u.i>>32;
-	} else if (hx >= 0x7ff00000) {
-		return x;
-	} else if (hx == 0x3ff00000 && u.i<<32 == 0)
-		return 0;
+        x *= t;
+        u.f = x;
+        hx = u.i>>32;
+    } else if (hx >= 0x7ff00000) {
+        return x;
+    } else if (hx == 0x3ff00000 && u.i<<32 == 0)
+        return 0;
 
-	/* reduce x into [sqrt(2)/2, sqrt(2)] */
-	hx += 0x3ff00000 - 0x3fe6a09e;
-	k += (int)(hx>>20) - 0x3ff;
-	hx = (hx&0x000fffff) + 0x3fe6a09e;
-	u.i = (uint64_t)hx<<32 | (u.i&0xffffffff);
-	x = u.f;
+    /* reduce x into [sqrt(2)/2, sqrt(2)] */
+    hx += 0x3ff00000 - 0x3fe6a09e;
+    k += (int)(hx>>20) - 0x3ff;
+    hx = (hx&0x000fffff) + 0x3fe6a09e;
+    u.i = (uint64_t)hx<<32 | (u.i&0xffffffff);
+    x = u.f;
 
     t = 1.0;
-	f = x - t;
+    f = x - t;
     t = 0.5;
-	hfsq = t*f*f;
+    hfsq = t*f*f;
     t = 2.0;
-	s = f/(t+f);
-	z = s*s;
-	w = z*z;
-	t1 = w*(Lg2+w*(Lg4+w*Lg6));
-	t2 = z*(Lg1+w*(Lg3+w*(Lg5+w*Lg7)));
-	R = t2 + t1;
-	dk = k;
-	return s*(hfsq+R) + dk*ln2_lo - hfsq + f + dk*ln2_hi;
+    s = f/(t+f);
+    z = s*s;
+    w = z*z;
+    t1 = w*(Lg2+w*(Lg4+w*Lg6));
+    t2 = z*(Lg1+w*(Lg3+w*(Lg5+w*Lg7)));
+    R = t2 + t1;
+    dk = k;
+    return s*(hfsq+R) + dk*ln2_lo - hfsq + f + dk*ln2_hi;
 }
 
 bool field_from_hex(Field b, const char *hex) {
@@ -194,7 +199,7 @@ bool field_from_hex(Field b, const char *hex) {
 
 void field_copy(Field c, const Field a)
 {
-    memmove(c, a, FIELD_BYTES);
+    fiat_pasta_fp_copy(c, a);
 }
 
 bool field_is_odd(const Field y)
@@ -797,10 +802,17 @@ void generate_keypair(Keypair *keypair, uint32_t account)
     }
 
     uint64_t priv_non_montgomery[4] = { 0, 0, 0, 0 };
+#ifdef RAND_PLATFORM_INDEPENDENT
+    random_buffer((uint8_t *) priv_non_montgomery, sizeof(uint64_t) * 4);
+#else
     FILE* fr = fopen("/dev/urandom", "r");
     if (!fr) perror("urandom"), exit(EXIT_FAILURE);
-    /* fread((void*)priv_non_montgomery, sizeof(uint8_t), 32, fr); */
-    /* fclose(fr), fr = NULL; */
+    int res = fread((void*)priv_non_montgomery, sizeof(uint8_t), 32, fr);
+    if (!res) {
+        printf("can't read random number for test");
+    }
+    fclose(fr), fr = NULL;
+#endif
 
     // Make sure the private key is in [0, p)
     //
