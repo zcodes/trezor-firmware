@@ -1,0 +1,1 @@
+from trezorcrypto import mina
