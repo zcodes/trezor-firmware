@@ -113,6 +113,10 @@ class Keychain:
         raise FORBIDDEN_KEY_PATH
 
     def is_in_keychain(self, path: paths.Bip32Path) -> bool:
+        for schema in self.schemas:
+            print(schema)
+            print(path)
+            print(schema.match(path))
         return any(schema.match(path) for schema in self.schemas)
 
     def _derive_with_cache(
@@ -199,6 +203,7 @@ def with_slip44_keychain(
     for pattern in patterns:
         schemas.append(paths.PathSchema.parse(pattern=pattern, slip44_id=slip44_ids))
     schemas = [s.copy() for s in schemas]
+    print(schemas)
 
     def decorator(func: HandlerWithKeychain[MsgIn, MsgOut]) -> Handler[MsgIn, MsgOut]:
         async def wrapper(ctx: wire.Context, msg: MsgIn) -> MsgOut:

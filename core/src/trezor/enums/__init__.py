@@ -115,6 +115,8 @@ if TYPE_CHECKING:
         NEMSignedTx = 70
         NEMDecryptMessage = 75
         NEMDecryptedMessage = 76
+        MinaGetAddress = 900
+        MinaAddress = 901
         TezosGetAddress = 150
         TezosAddress = 151
         TezosSignTx = 152

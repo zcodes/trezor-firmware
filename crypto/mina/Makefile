@@ -22,7 +22,8 @@ SRCS = base10.c \
 	../blake256.c \
 	../ripemd160.c \
 	../sha3.c \
-	../groestl.c
+	../groestl.c \
+	../bignum.c
 
 OBJS = $(SRCS:.c=.o)
 

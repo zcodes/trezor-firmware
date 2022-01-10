@@ -78,6 +78,8 @@ trezor.crypto.der
 import trezor.crypto.der
 trezor.crypto.hashlib
 import trezor.crypto.hashlib
+trezor.crypto.mina
+import trezor.crypto.mina
 trezor.crypto.rlp
 import trezor.crypto.rlp
 trezor.crypto.scripts
@@ -364,6 +366,12 @@ apps.management.set_u2f_counter
 import apps.management.set_u2f_counter
 apps.management.wipe_device
 import apps.management.wipe_device
+apps.mina
+import apps.mina
+apps.mina.get_address
+import apps.mina.get_address
+apps.mina.helpers
+import apps.mina.helpers
 apps.misc
 import apps.misc
 apps.misc.cipher_key_value

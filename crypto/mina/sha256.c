@@ -13,8 +13,6 @@
 *********************************************************************/
 
 /*************************** HEADER FILES ***************************/
-#include <stdlib.h>
-#include <memory.h>
 #include "sha256.h"
 
 void sha256_hash(const void *in, const size_t in_len, void *out, size_t out_len)

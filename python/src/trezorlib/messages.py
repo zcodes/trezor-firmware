@@ -136,6 +136,8 @@ class MessageType(IntEnum):
     NEMSignedTx = 70
     NEMDecryptMessage = 75
     NEMDecryptedMessage = 76
+    MinaGetAddress = 900
+    MinaAddress = 901
     TezosGetAddress = 150
     TezosAddress = 151
     TezosSignTx = 152
@@ -4791,6 +4793,40 @@ class EthereumAccessList(protobuf.MessageType):
         storage_keys: Optional[Sequence["bytes"]] = None,
     ) -> None:
         self.storage_keys: Sequence["bytes"] = storage_keys if storage_keys is not None else []
+        self.address = address
+
+
+class MinaGetAddress(protobuf.MessageType):
+    MESSAGE_WIRE_TYPE = 900
+    FIELDS = {
+        1: protobuf.Field("address_n", "uint32", repeated=True, required=False),
+        2: protobuf.Field("network", "uint32", repeated=False, required=False),
+        3: protobuf.Field("show_display", "bool", repeated=False, required=False),
+    }
+
+    def __init__(
+        self,
+        *,
+        address_n: Optional[Sequence["int"]] = None,
+        network: Optional["int"] = None,
+        show_display: Optional["bool"] = None,
+    ) -> None:
+        self.address_n: Sequence["int"] = address_n if address_n is not None else []
+        self.network = network
+        self.show_display = show_display
+
+
+class MinaAddress(protobuf.MessageType):
+    MESSAGE_WIRE_TYPE = 901
+    FIELDS = {
+        1: protobuf.Field("address", "string", repeated=False, required=True),
+    }
+
+    def __init__(
+        self,
+        *,
+        address: "str",
+    ) -> None:
         self.address = address
 
 

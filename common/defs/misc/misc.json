@@ -178,5 +178,14 @@
             "Homepage": "https://tether.to"
         },
         "wallet": {}
+    },
+    {
+        "name": "Mina",
+        "shortcut": "MINA",
+        "slip44": 12586,
+        "curve": "secp256k1",
+        "decimails": 8,
+        "links": {},
+        "wallet": {}
     }
 ]
