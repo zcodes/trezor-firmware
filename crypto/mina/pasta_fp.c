@@ -27,82 +27,6 @@
 #include "pasta.h"
 
 /*
- * The function fiat_pasta_fp_subborrowx_u64 is a subtraction with borrow.
- * Postconditions:
- *   out1 = (-arg1 + arg2 + -arg3) mod 2^64
- *   out2 = -⌊(-arg1 + arg2 + -arg3) / 2^64⌋
- *
- * Input Bounds:
- *   arg1: [0x0 ~> 0x1]
- *   arg2: [0x0 ~> 0xffffffffffffffff]
- *   arg3: [0x0 ~> 0xffffffffffffffff]
- * Output Bounds:
- *   out1: [0x0 ~> 0xffffffffffffffff]
- *   out2: [0x0 ~> 0x1]
- */
-void fiat_pasta_fp_subborrowx_u64(uint64_t* out1, fiat_pasta_uint1* out2, fiat_pasta_uint1 arg1, uint64_t arg2, uint64_t arg3) {
-  uint64_t tmp = arg3 + arg1;
-  *out1 = arg2 - tmp;
-  *out2 = (arg2 < *out1) | (arg3 > tmp);
-}
-
-/*
- * The function fiat_pasta_fp_mulx_u64 is a multiplication, returning the full double-width result.
- * Postconditions:
- *   out1 = (arg1 * arg2) mod 2^64
- *   out2 = ⌊arg1 * arg2 / 2^64⌋
- *
- * Input Bounds:
- *   arg1: [0x0 ~> 0xffffffffffffffff]
- *   arg2: [0x0 ~> 0xffffffffffffffff]
- * Output Bounds:
- *   out1: [0x0 ~> 0xffffffffffffffff]
- *   out2: [0x0 ~> 0xffffffffffffffff]
- */
-void fiat_pasta_fp_mulx_u64(uint64_t* out1, uint64_t* out2, uint64_t a, uint64_t b) {
-  uint64_t    a_lo = (uint32_t)a;
-  uint64_t    a_hi = a >> 32;
-  uint64_t    b_lo = (uint32_t)b;
-  uint64_t    b_hi = b >> 32;
-
-  uint64_t    a_x_b_hi =  a_hi * b_hi;
-  uint64_t    a_x_b_mid = a_hi * b_lo;
-  uint64_t    b_x_a_mid = b_hi * a_lo;
-  uint64_t    a_x_b_lo =  a_lo * b_lo;
-
-  uint64_t    carry_bit = ((uint64_t)(uint32_t)a_x_b_mid +
-                          (uint64_t)(uint32_t)b_x_a_mid +
-                          (a_x_b_lo >> 32) ) >> 32;
-
- *out2 = a_x_b_hi +
-     (a_x_b_mid >> 32) + (b_x_a_mid >> 32) +
-     carry_bit;
-
-  // TODO: This multiplication could be avoided.
-  *out1 = a * b;
-}
-
-/*
- * The function fiat_pasta_fp_cmovznz_u64 is a single-word conditional move.
- * Postconditions:
- *   out1 = (if arg1 = 0 then arg2 else arg3)
- *
- * Input Bounds:
- *   arg1: [0x0 ~> 0x1]
- *   arg2: [0x0 ~> 0xffffffffffffffff]
- *   arg3: [0x0 ~> 0xffffffffffffffff]
- * Output Bounds:
- *   out1: [0x0 ~> 0xffffffffffffffff]
- */
-void fiat_pasta_fp_cmovznz_u64(uint64_t* out1, fiat_pasta_uint1 arg1, uint64_t arg2, uint64_t arg3) {
-  fiat_pasta_uint1 x1;
-  uint64_t x2;
-  x1 = (!(!arg1));
-  x2 = ((fiat_pasta_int1)(0x0 - x1) & UINT64_C(0xffffffffffffffff));
-  *out1 = ((x2 & arg3) | ((~x2) & arg2));
-}
-
-/*
  * The function fiat_pasta_fp_mul multiplies two field elements in the Montgomery domain.
  * Preconditions:
  *   0 ≤ eval arg1 < m
@@ -313,18 +237,18 @@ void fiat_pasta_fp_mul(uint64_t out1[4], const uint64_t arg1[4], const uint64_t 
   x2 = (arg1[2]);
   x3 = (arg1[3]);
   x4 = (arg1[0]);
-  fiat_pasta_fp_mulx_u64(&x5, &x6, x4, (arg2[3]));
-  fiat_pasta_fp_mulx_u64(&x7, &x8, x4, (arg2[2]));
-  fiat_pasta_fp_mulx_u64(&x9, &x10, x4, (arg2[1]));
-  fiat_pasta_fp_mulx_u64(&x11, &x12, x4, (arg2[0]));
+  fiat_pasta_mulx_u64(&x5, &x6, x4, (arg2[3]));
+  fiat_pasta_mulx_u64(&x7, &x8, x4, (arg2[2]));
+  fiat_pasta_mulx_u64(&x9, &x10, x4, (arg2[1]));
+  fiat_pasta_mulx_u64(&x11, &x12, x4, (arg2[0]));
   fiat_pasta_addcarryx_u64(&x13, &x14, 0x0, x12, x9);
   fiat_pasta_addcarryx_u64(&x15, &x16, x14, x10, x7);
   fiat_pasta_addcarryx_u64(&x17, &x18, x16, x8, x5);
   x19 = (x18 + x6);
-  fiat_pasta_fp_mulx_u64(&x20, &x21, x11, aa);
-  fiat_pasta_fp_mulx_u64(&x22, &x23, x20, bb);
-  fiat_pasta_fp_mulx_u64(&x24, &x25, x20, cc);
-  fiat_pasta_fp_mulx_u64(&x26, &x27, x20, dd);
+  fiat_pasta_mulx_u64(&x20, &x21, x11, aa);
+  fiat_pasta_mulx_u64(&x22, &x23, x20, bb);
+  fiat_pasta_mulx_u64(&x24, &x25, x20, cc);
+  fiat_pasta_mulx_u64(&x26, &x27, x20, dd);
   fiat_pasta_addcarryx_u64(&x28, &x29, 0x0, x27, x24);
   x30 = (x29 + x25);
   fiat_pasta_addcarryx_u64(&x31, &x32, 0x0, x11, x26);
@@ -332,10 +256,10 @@ void fiat_pasta_fp_mul(uint64_t out1[4], const uint64_t arg1[4], const uint64_t 
   fiat_pasta_addcarryx_u64(&x35, &x36, x34, x15, x30);
   fiat_pasta_addcarryx_u64(&x37, &x38, x36, x17, x22);
   fiat_pasta_addcarryx_u64(&x39, &x40, x38, x19, x23);
-  fiat_pasta_fp_mulx_u64(&x41, &x42, x1, (arg2[3]));
-  fiat_pasta_fp_mulx_u64(&x43, &x44, x1, (arg2[2]));
-  fiat_pasta_fp_mulx_u64(&x45, &x46, x1, (arg2[1]));
-  fiat_pasta_fp_mulx_u64(&x47, &x48, x1, (arg2[0]));
+  fiat_pasta_mulx_u64(&x41, &x42, x1, (arg2[3]));
+  fiat_pasta_mulx_u64(&x43, &x44, x1, (arg2[2]));
+  fiat_pasta_mulx_u64(&x45, &x46, x1, (arg2[1]));
+  fiat_pasta_mulx_u64(&x47, &x48, x1, (arg2[0]));
   fiat_pasta_addcarryx_u64(&x49, &x50, 0x0, x48, x45);
   fiat_pasta_addcarryx_u64(&x51, &x52, x50, x46, x43);
   fiat_pasta_addcarryx_u64(&x53, &x54, x52, x44, x41);
@@ -345,10 +269,10 @@ void fiat_pasta_fp_mul(uint64_t out1[4], const uint64_t arg1[4], const uint64_t 
   fiat_pasta_addcarryx_u64(&x60, &x61, x59, x37, x51);
   fiat_pasta_addcarryx_u64(&x62, &x63, x61, x39, x53);
   fiat_pasta_addcarryx_u64(&x64, &x65, x63, x40, x55);
-  fiat_pasta_fp_mulx_u64(&x66, &x67, x56, aa);
-  fiat_pasta_fp_mulx_u64(&x68, &x69, x66, bb);
-  fiat_pasta_fp_mulx_u64(&x70, &x71, x66, cc);
-  fiat_pasta_fp_mulx_u64(&x72, &x73, x66, dd);
+  fiat_pasta_mulx_u64(&x66, &x67, x56, aa);
+  fiat_pasta_mulx_u64(&x68, &x69, x66, bb);
+  fiat_pasta_mulx_u64(&x70, &x71, x66, cc);
+  fiat_pasta_mulx_u64(&x72, &x73, x66, dd);
   fiat_pasta_addcarryx_u64(&x74, &x75, 0x0, x73, x70);
   x76 = (x75 + x71);
   fiat_pasta_addcarryx_u64(&x77, &x78, 0x0, x56, x72);
@@ -357,10 +281,10 @@ void fiat_pasta_fp_mul(uint64_t out1[4], const uint64_t arg1[4], const uint64_t 
   fiat_pasta_addcarryx_u64(&x83, &x84, x82, x62, x68);
   fiat_pasta_addcarryx_u64(&x85, &x86, x84, x64, x69);
   x87 = ((uint64_t)x86 + x65);
-  fiat_pasta_fp_mulx_u64(&x88, &x89, x2, (arg2[3]));
-  fiat_pasta_fp_mulx_u64(&x90, &x91, x2, (arg2[2]));
-  fiat_pasta_fp_mulx_u64(&x92, &x93, x2, (arg2[1]));
-  fiat_pasta_fp_mulx_u64(&x94, &x95, x2, (arg2[0]));
+  fiat_pasta_mulx_u64(&x88, &x89, x2, (arg2[3]));
+  fiat_pasta_mulx_u64(&x90, &x91, x2, (arg2[2]));
+  fiat_pasta_mulx_u64(&x92, &x93, x2, (arg2[1]));
+  fiat_pasta_mulx_u64(&x94, &x95, x2, (arg2[0]));
   fiat_pasta_addcarryx_u64(&x96, &x97, 0x0, x95, x92);
   fiat_pasta_addcarryx_u64(&x98, &x99, x97, x93, x90);
   fiat_pasta_addcarryx_u64(&x100, &x101, x99, x91, x88);
@@ -370,10 +294,10 @@ void fiat_pasta_fp_mul(uint64_t out1[4], const uint64_t arg1[4], const uint64_t 
   fiat_pasta_addcarryx_u64(&x107, &x108, x106, x83, x98);
   fiat_pasta_addcarryx_u64(&x109, &x110, x108, x85, x100);
   fiat_pasta_addcarryx_u64(&x111, &x112, x110, x87, x102);
-  fiat_pasta_fp_mulx_u64(&x113, &x114, x103, aa);
-  fiat_pasta_fp_mulx_u64(&x115, &x116, x113, bb);
-  fiat_pasta_fp_mulx_u64(&x117, &x118, x113, cc);
-  fiat_pasta_fp_mulx_u64(&x119, &x120, x113, dd);
+  fiat_pasta_mulx_u64(&x113, &x114, x103, aa);
+  fiat_pasta_mulx_u64(&x115, &x116, x113, bb);
+  fiat_pasta_mulx_u64(&x117, &x118, x113, cc);
+  fiat_pasta_mulx_u64(&x119, &x120, x113, dd);
   fiat_pasta_addcarryx_u64(&x121, &x122, 0x0, x120, x117);
   x123 = (x122 + x118);
   fiat_pasta_addcarryx_u64(&x124, &x125, 0x0, x103, x119);
@@ -382,10 +306,10 @@ void fiat_pasta_fp_mul(uint64_t out1[4], const uint64_t arg1[4], const uint64_t 
   fiat_pasta_addcarryx_u64(&x130, &x131, x129, x109, x115);
   fiat_pasta_addcarryx_u64(&x132, &x133, x131, x111, x116);
   x134 = ((uint64_t)x133 + x112);
-  fiat_pasta_fp_mulx_u64(&x135, &x136, x3, (arg2[3]));
-  fiat_pasta_fp_mulx_u64(&x137, &x138, x3, (arg2[2]));
-  fiat_pasta_fp_mulx_u64(&x139, &x140, x3, (arg2[1]));
-  fiat_pasta_fp_mulx_u64(&x141, &x142, x3, (arg2[0]));
+  fiat_pasta_mulx_u64(&x135, &x136, x3, (arg2[3]));
+  fiat_pasta_mulx_u64(&x137, &x138, x3, (arg2[2]));
+  fiat_pasta_mulx_u64(&x139, &x140, x3, (arg2[1]));
+  fiat_pasta_mulx_u64(&x141, &x142, x3, (arg2[0]));
   fiat_pasta_addcarryx_u64(&x143, &x144, 0x0, x142, x139);
   fiat_pasta_addcarryx_u64(&x145, &x146, x144, x140, x137);
   fiat_pasta_addcarryx_u64(&x147, &x148, x146, x138, x135);
@@ -395,10 +319,10 @@ void fiat_pasta_fp_mul(uint64_t out1[4], const uint64_t arg1[4], const uint64_t 
   fiat_pasta_addcarryx_u64(&x154, &x155, x153, x130, x145);
   fiat_pasta_addcarryx_u64(&x156, &x157, x155, x132, x147);
   fiat_pasta_addcarryx_u64(&x158, &x159, x157, x134, x149);
-  fiat_pasta_fp_mulx_u64(&x160, &x161, x150, aa);
-  fiat_pasta_fp_mulx_u64(&x162, &x163, x160, bb);
-  fiat_pasta_fp_mulx_u64(&x164, &x165, x160, cc);
-  fiat_pasta_fp_mulx_u64(&x166, &x167, x160, dd);
+  fiat_pasta_mulx_u64(&x160, &x161, x150, aa);
+  fiat_pasta_mulx_u64(&x162, &x163, x160, bb);
+  fiat_pasta_mulx_u64(&x164, &x165, x160, cc);
+  fiat_pasta_mulx_u64(&x166, &x167, x160, dd);
   fiat_pasta_addcarryx_u64(&x168, &x169, 0x0, x167, x164);
   x170 = (x169 + x165);
   fiat_pasta_addcarryx_u64(&x171, &x172, 0x0, x150, x166);
@@ -407,15 +331,15 @@ void fiat_pasta_fp_mul(uint64_t out1[4], const uint64_t arg1[4], const uint64_t 
   fiat_pasta_addcarryx_u64(&x177, &x178, x176, x156, x162);
   fiat_pasta_addcarryx_u64(&x179, &x180, x178, x158, x163);
   x181 = ((uint64_t)x180 + x159);
-  fiat_pasta_fp_subborrowx_u64(&x182, &x183, 0x0, x173, dd);
-  fiat_pasta_fp_subborrowx_u64(&x184, &x185, x183, x175, cc);
-  fiat_pasta_fp_subborrowx_u64(&x186, &x187, x185, x177, 0x0);
-  fiat_pasta_fp_subborrowx_u64(&x188, &x189, x187, x179, bb);
-  fiat_pasta_fp_subborrowx_u64(&x190, &x191, x189, x181, 0x0);
-  fiat_pasta_fp_cmovznz_u64(&out1[0], x191, x182, x173);
-  fiat_pasta_fp_cmovznz_u64(&out1[1], x191, x184, x175);
-  fiat_pasta_fp_cmovznz_u64(&out1[2], x191, x186, x177);
-  fiat_pasta_fp_cmovznz_u64(&out1[3], x191, x188, x179);
+  fiat_pasta_subborrowx_u64(&x182, &x183, 0x0, x173, dd);
+  fiat_pasta_subborrowx_u64(&x184, &x185, x183, x175, cc);
+  fiat_pasta_subborrowx_u64(&x186, &x187, x185, x177, 0x0);
+  fiat_pasta_subborrowx_u64(&x188, &x189, x187, x179, bb);
+  fiat_pasta_subborrowx_u64(&x190, &x191, x189, x181, 0x0);
+  fiat_pasta_cmovznz_u64(&out1[0], x191, x182, x173);
+  fiat_pasta_cmovznz_u64(&out1[1], x191, x184, x175);
+  fiat_pasta_cmovznz_u64(&out1[2], x191, x186, x177);
+  fiat_pasta_cmovznz_u64(&out1[3], x191, x188, x179);
 }
 
 /*
@@ -627,18 +551,18 @@ void fiat_pasta_fp_square(uint64_t out1[4], const uint64_t arg1[4]) {
   x2 = (arg1[2]);
   x3 = (arg1[3]);
   x4 = (arg1[0]);
-  fiat_pasta_fp_mulx_u64(&x5, &x6, x4, (arg1[3]));
-  fiat_pasta_fp_mulx_u64(&x7, &x8, x4, (arg1[2]));
-  fiat_pasta_fp_mulx_u64(&x9, &x10, x4, (arg1[1]));
-  fiat_pasta_fp_mulx_u64(&x11, &x12, x4, (arg1[0]));
+  fiat_pasta_mulx_u64(&x5, &x6, x4, (arg1[3]));
+  fiat_pasta_mulx_u64(&x7, &x8, x4, (arg1[2]));
+  fiat_pasta_mulx_u64(&x9, &x10, x4, (arg1[1]));
+  fiat_pasta_mulx_u64(&x11, &x12, x4, (arg1[0]));
   fiat_pasta_addcarryx_u64(&x13, &x14, 0x0, x12, x9);
   fiat_pasta_addcarryx_u64(&x15, &x16, x14, x10, x7);
   fiat_pasta_addcarryx_u64(&x17, &x18, x16, x8, x5);
   x19 = (x18 + x6);
-  fiat_pasta_fp_mulx_u64(&x20, &x21, x11, aa);
-  fiat_pasta_fp_mulx_u64(&x22, &x23, x20, bb);
-  fiat_pasta_fp_mulx_u64(&x24, &x25, x20, cc);
-  fiat_pasta_fp_mulx_u64(&x26, &x27, x20, dd);
+  fiat_pasta_mulx_u64(&x20, &x21, x11, aa);
+  fiat_pasta_mulx_u64(&x22, &x23, x20, bb);
+  fiat_pasta_mulx_u64(&x24, &x25, x20, cc);
+  fiat_pasta_mulx_u64(&x26, &x27, x20, dd);
   fiat_pasta_addcarryx_u64(&x28, &x29, 0x0, x27, x24);
   x30 = (x29 + x25);
   fiat_pasta_addcarryx_u64(&x31, &x32, 0x0, x11, x26);
@@ -646,10 +570,10 @@ void fiat_pasta_fp_square(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_addcarryx_u64(&x35, &x36, x34, x15, x30);
   fiat_pasta_addcarryx_u64(&x37, &x38, x36, x17, x22);
   fiat_pasta_addcarryx_u64(&x39, &x40, x38, x19, x23);
-  fiat_pasta_fp_mulx_u64(&x41, &x42, x1, (arg1[3]));
-  fiat_pasta_fp_mulx_u64(&x43, &x44, x1, (arg1[2]));
-  fiat_pasta_fp_mulx_u64(&x45, &x46, x1, (arg1[1]));
-  fiat_pasta_fp_mulx_u64(&x47, &x48, x1, (arg1[0]));
+  fiat_pasta_mulx_u64(&x41, &x42, x1, (arg1[3]));
+  fiat_pasta_mulx_u64(&x43, &x44, x1, (arg1[2]));
+  fiat_pasta_mulx_u64(&x45, &x46, x1, (arg1[1]));
+  fiat_pasta_mulx_u64(&x47, &x48, x1, (arg1[0]));
   fiat_pasta_addcarryx_u64(&x49, &x50, 0x0, x48, x45);
   fiat_pasta_addcarryx_u64(&x51, &x52, x50, x46, x43);
   fiat_pasta_addcarryx_u64(&x53, &x54, x52, x44, x41);
@@ -659,10 +583,10 @@ void fiat_pasta_fp_square(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_addcarryx_u64(&x60, &x61, x59, x37, x51);
   fiat_pasta_addcarryx_u64(&x62, &x63, x61, x39, x53);
   fiat_pasta_addcarryx_u64(&x64, &x65, x63, x40, x55);
-  fiat_pasta_fp_mulx_u64(&x66, &x67, x56, aa);
-  fiat_pasta_fp_mulx_u64(&x68, &x69, x66, bb);
-  fiat_pasta_fp_mulx_u64(&x70, &x71, x66, cc);
-  fiat_pasta_fp_mulx_u64(&x72, &x73, x66, dd);
+  fiat_pasta_mulx_u64(&x66, &x67, x56, aa);
+  fiat_pasta_mulx_u64(&x68, &x69, x66, bb);
+  fiat_pasta_mulx_u64(&x70, &x71, x66, cc);
+  fiat_pasta_mulx_u64(&x72, &x73, x66, dd);
   fiat_pasta_addcarryx_u64(&x74, &x75, 0x0, x73, x70);
   x76 = (x75 + x71);
   fiat_pasta_addcarryx_u64(&x77, &x78, 0x0, x56, x72);
@@ -671,10 +595,10 @@ void fiat_pasta_fp_square(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_addcarryx_u64(&x83, &x84, x82, x62, x68);
   fiat_pasta_addcarryx_u64(&x85, &x86, x84, x64, x69);
   x87 = ((uint64_t)x86 + x65);
-  fiat_pasta_fp_mulx_u64(&x88, &x89, x2, (arg1[3]));
-  fiat_pasta_fp_mulx_u64(&x90, &x91, x2, (arg1[2]));
-  fiat_pasta_fp_mulx_u64(&x92, &x93, x2, (arg1[1]));
-  fiat_pasta_fp_mulx_u64(&x94, &x95, x2, (arg1[0]));
+  fiat_pasta_mulx_u64(&x88, &x89, x2, (arg1[3]));
+  fiat_pasta_mulx_u64(&x90, &x91, x2, (arg1[2]));
+  fiat_pasta_mulx_u64(&x92, &x93, x2, (arg1[1]));
+  fiat_pasta_mulx_u64(&x94, &x95, x2, (arg1[0]));
   fiat_pasta_addcarryx_u64(&x96, &x97, 0x0, x95, x92);
   fiat_pasta_addcarryx_u64(&x98, &x99, x97, x93, x90);
   fiat_pasta_addcarryx_u64(&x100, &x101, x99, x91, x88);
@@ -684,10 +608,10 @@ void fiat_pasta_fp_square(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_addcarryx_u64(&x107, &x108, x106, x83, x98);
   fiat_pasta_addcarryx_u64(&x109, &x110, x108, x85, x100);
   fiat_pasta_addcarryx_u64(&x111, &x112, x110, x87, x102);
-  fiat_pasta_fp_mulx_u64(&x113, &x114, x103, aa);
-  fiat_pasta_fp_mulx_u64(&x115, &x116, x113, bb);
-  fiat_pasta_fp_mulx_u64(&x117, &x118, x113, cc);
-  fiat_pasta_fp_mulx_u64(&x119, &x120, x113, dd);
+  fiat_pasta_mulx_u64(&x113, &x114, x103, aa);
+  fiat_pasta_mulx_u64(&x115, &x116, x113, bb);
+  fiat_pasta_mulx_u64(&x117, &x118, x113, cc);
+  fiat_pasta_mulx_u64(&x119, &x120, x113, dd);
   fiat_pasta_addcarryx_u64(&x121, &x122, 0x0, x120, x117);
   x123 = (x122 + x118);
   fiat_pasta_addcarryx_u64(&x124, &x125, 0x0, x103, x119);
@@ -696,10 +620,10 @@ void fiat_pasta_fp_square(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_addcarryx_u64(&x130, &x131, x129, x109, x115);
   fiat_pasta_addcarryx_u64(&x132, &x133, x131, x111, x116);
   x134 = ((uint64_t)x133 + x112);
-  fiat_pasta_fp_mulx_u64(&x135, &x136, x3, (arg1[3]));
-  fiat_pasta_fp_mulx_u64(&x137, &x138, x3, (arg1[2]));
-  fiat_pasta_fp_mulx_u64(&x139, &x140, x3, (arg1[1]));
-  fiat_pasta_fp_mulx_u64(&x141, &x142, x3, (arg1[0]));
+  fiat_pasta_mulx_u64(&x135, &x136, x3, (arg1[3]));
+  fiat_pasta_mulx_u64(&x137, &x138, x3, (arg1[2]));
+  fiat_pasta_mulx_u64(&x139, &x140, x3, (arg1[1]));
+  fiat_pasta_mulx_u64(&x141, &x142, x3, (arg1[0]));
   fiat_pasta_addcarryx_u64(&x143, &x144, 0x0, x142, x139);
   fiat_pasta_addcarryx_u64(&x145, &x146, x144, x140, x137);
   fiat_pasta_addcarryx_u64(&x147, &x148, x146, x138, x135);
@@ -709,10 +633,10 @@ void fiat_pasta_fp_square(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_addcarryx_u64(&x154, &x155, x153, x130, x145);
   fiat_pasta_addcarryx_u64(&x156, &x157, x155, x132, x147);
   fiat_pasta_addcarryx_u64(&x158, &x159, x157, x134, x149);
-  fiat_pasta_fp_mulx_u64(&x160, &x161, x150, aa);
-  fiat_pasta_fp_mulx_u64(&x162, &x163, x160, bb);
-  fiat_pasta_fp_mulx_u64(&x164, &x165, x160, cc);
-  fiat_pasta_fp_mulx_u64(&x166, &x167, x160, dd);
+  fiat_pasta_mulx_u64(&x160, &x161, x150, aa);
+  fiat_pasta_mulx_u64(&x162, &x163, x160, bb);
+  fiat_pasta_mulx_u64(&x164, &x165, x160, cc);
+  fiat_pasta_mulx_u64(&x166, &x167, x160, dd);
   fiat_pasta_addcarryx_u64(&x168, &x169, 0x0, x167, x164);
   x170 = (x169 + x165);
   fiat_pasta_addcarryx_u64(&x171, &x172, 0x0, x150, x166);
@@ -721,15 +645,15 @@ void fiat_pasta_fp_square(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_addcarryx_u64(&x177, &x178, x176, x156, x162);
   fiat_pasta_addcarryx_u64(&x179, &x180, x178, x158, x163);
   x181 = ((uint64_t)x180 + x159);
-  fiat_pasta_fp_subborrowx_u64(&x182, &x183, 0x0, x173, dd);
-  fiat_pasta_fp_subborrowx_u64(&x184, &x185, x183, x175, cc);
-  fiat_pasta_fp_subborrowx_u64(&x186, &x187, x185, x177, 0x0);
-  fiat_pasta_fp_subborrowx_u64(&x188, &x189, x187, x179, bb);
-  fiat_pasta_fp_subborrowx_u64(&x190, &x191, x189, x181, 0x0);
-  fiat_pasta_fp_cmovznz_u64(&out1[0], x191, x182, x173);
-  fiat_pasta_fp_cmovznz_u64(&out1[1], x191, x184, x175);
-  fiat_pasta_fp_cmovznz_u64(&out1[2], x191, x186, x177);
-  fiat_pasta_fp_cmovznz_u64(&out1[3], x191, x188, x179);
+  fiat_pasta_subborrowx_u64(&x182, &x183, 0x0, x173, dd);
+  fiat_pasta_subborrowx_u64(&x184, &x185, x183, x175, cc);
+  fiat_pasta_subborrowx_u64(&x186, &x187, x185, x177, 0x0);
+  fiat_pasta_subborrowx_u64(&x188, &x189, x187, x179, bb);
+  fiat_pasta_subborrowx_u64(&x190, &x191, x189, x181, 0x0);
+  fiat_pasta_cmovznz_u64(&out1[0], x191, x182, x173);
+  fiat_pasta_cmovznz_u64(&out1[1], x191, x184, x175);
+  fiat_pasta_cmovznz_u64(&out1[2], x191, x186, x177);
+  fiat_pasta_cmovznz_u64(&out1[3], x191, x188, x179);
 }
 
 /*
@@ -770,55 +694,15 @@ void fiat_pasta_fp_add(uint64_t out1[4], const uint64_t arg1[4], const uint64_t 
   fiat_pasta_addcarryx_u64(&x3, &x4, x2, (arg1[1]), (arg2[1]));
   fiat_pasta_addcarryx_u64(&x5, &x6, x4, (arg1[2]), (arg2[2]));
   fiat_pasta_addcarryx_u64(&x7, &x8, x6, (arg1[3]), (arg2[3]));
-  fiat_pasta_fp_subborrowx_u64(&x9, &x10, 0x0, x1, dd);
-  fiat_pasta_fp_subborrowx_u64(&x11, &x12, x10, x3, cc);
-  fiat_pasta_fp_subborrowx_u64(&x13, &x14, x12, x5, 0x0);
-  fiat_pasta_fp_subborrowx_u64(&x15, &x16, x14, x7, bb);
-  fiat_pasta_fp_subborrowx_u64(&x17, &x18, x16, x8, 0x0);
-  fiat_pasta_fp_cmovznz_u64(&out1[0], x18, x9, x1);
-  fiat_pasta_fp_cmovznz_u64(&out1[1], x18, x11, x3);
-  fiat_pasta_fp_cmovznz_u64(&out1[2], x18, x13, x5);
-  fiat_pasta_fp_cmovznz_u64(&out1[3], x18, x15, x7);
-}
-
-/*
- * The function fiat_pasta_fp_sub subtracts two field elements in the Montgomery domain.
- * Preconditions:
- *   0 ≤ eval arg1 < m
- *   0 ≤ eval arg2 < m
- * Postconditions:
- *   eval (from_montgomery out1) mod m = (eval (from_montgomery arg1) - eval (from_montgomery arg2)) mod m
- *   0 ≤ eval out1 < m
- *
- * Input Bounds:
- *   arg1: [[0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff]]
- *   arg2: [[0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff]]
- * Output Bounds:
- *   out1: [[0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff]]
- */
-void fiat_pasta_fp_sub(uint64_t out1[4], const uint64_t arg1[4], const uint64_t arg2[4]) {
-  uint64_t x1;
-  fiat_pasta_uint1 x2;
-  uint64_t x3;
-  fiat_pasta_uint1 x4;
-  uint64_t x5;
-  fiat_pasta_uint1 x6;
-  uint64_t x7;
-  fiat_pasta_uint1 x8;
-  uint64_t x9;
-  fiat_pasta_uint1 x11;
-  fiat_pasta_uint1 x13;
-  fiat_pasta_uint1 x15;
-  fiat_pasta_uint1 x17;
-  fiat_pasta_fp_subborrowx_u64(&x1, &x2, 0x0, (arg1[0]), (arg2[0]));
-  fiat_pasta_fp_subborrowx_u64(&x3, &x4, x2, (arg1[1]), (arg2[1]));
-  fiat_pasta_fp_subborrowx_u64(&x5, &x6, x4, (arg1[2]), (arg2[2]));
-  fiat_pasta_fp_subborrowx_u64(&x7, &x8, x6, (arg1[3]), (arg2[3]));
-  fiat_pasta_fp_cmovznz_u64(&x9, x8, 0x0, UINT64_C(0xffffffffffffffff));
-  fiat_pasta_addcarryx_u64(&out1[0], &x11, 0x0, x1, (x9 & dd));
-  fiat_pasta_addcarryx_u64(&out1[1], &x13, x11, x3, (x9 & cc));
-  fiat_pasta_addcarryx_u64(&out1[2], &x15, x13, x5, 0x0);
-  fiat_pasta_addcarryx_u64(&out1[3], &x17, x15, x7, (x9 & bb));
+  fiat_pasta_subborrowx_u64(&x9, &x10, 0x0, x1, dd);
+  fiat_pasta_subborrowx_u64(&x11, &x12, x10, x3, cc);
+  fiat_pasta_subborrowx_u64(&x13, &x14, x12, x5, 0x0);
+  fiat_pasta_subborrowx_u64(&x15, &x16, x14, x7, bb);
+  fiat_pasta_subborrowx_u64(&x17, &x18, x16, x8, 0x0);
+  fiat_pasta_cmovznz_u64(&out1[0], x18, x9, x1);
+  fiat_pasta_cmovznz_u64(&out1[1], x18, x11, x3);
+  fiat_pasta_cmovznz_u64(&out1[2], x18, x13, x5);
+  fiat_pasta_cmovznz_u64(&out1[3], x18, x15, x7);
 }
 
 /*
@@ -848,11 +732,11 @@ void fiat_pasta_fp_opp(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_uint1 x13;
   fiat_pasta_uint1 x15;
   fiat_pasta_uint1 x17;
-  fiat_pasta_fp_subborrowx_u64(&x1, &x2, 0x0, 0x0, (arg1[0]));
-  fiat_pasta_fp_subborrowx_u64(&x3, &x4, x2, 0x0, (arg1[1]));
-  fiat_pasta_fp_subborrowx_u64(&x5, &x6, x4, 0x0, (arg1[2]));
-  fiat_pasta_fp_subborrowx_u64(&x7, &x8, x6, 0x0, (arg1[3]));
-  fiat_pasta_fp_cmovznz_u64(&x9, x8, 0x0, UINT64_C(0xffffffffffffffff));
+  fiat_pasta_subborrowx_u64(&x1, &x2, 0x0, 0x0, (arg1[0]));
+  fiat_pasta_subborrowx_u64(&x3, &x4, x2, 0x0, (arg1[1]));
+  fiat_pasta_subborrowx_u64(&x5, &x6, x4, 0x0, (arg1[2]));
+  fiat_pasta_subborrowx_u64(&x7, &x8, x6, 0x0, (arg1[3]));
+  fiat_pasta_cmovznz_u64(&x9, x8, 0x0, UINT64_C(0xffffffffffffffff));
   fiat_pasta_addcarryx_u64(&out1[0], &x11, 0x0, x1, (x9 & dd));
   fiat_pasta_addcarryx_u64(&out1[1], &x13, x11, x3, (x9 & cc));
   fiat_pasta_addcarryx_u64(&out1[2], &x15, x13, x5, 0x0);
@@ -968,18 +852,18 @@ void fiat_pasta_fp_from_montgomery(uint64_t out1[4], const uint64_t arg1[4]) {
   uint64_t x93;
   fiat_pasta_uint1 x94;
   x1 = (arg1[0]);
-  fiat_pasta_fp_mulx_u64(&x2, &x3, x1, aa);
-  fiat_pasta_fp_mulx_u64(&x4, &x5, x2, bb);
-  fiat_pasta_fp_mulx_u64(&x6, &x7, x2, cc);
-  fiat_pasta_fp_mulx_u64(&x8, &x9, x2, dd);
+  fiat_pasta_mulx_u64(&x2, &x3, x1, aa);
+  fiat_pasta_mulx_u64(&x4, &x5, x2, bb);
+  fiat_pasta_mulx_u64(&x6, &x7, x2, cc);
+  fiat_pasta_mulx_u64(&x8, &x9, x2, dd);
   fiat_pasta_addcarryx_u64(&x10, &x11, 0x0, x9, x6);
   fiat_pasta_addcarryx_u64(&x12, &x13, 0x0, x1, x8);
   fiat_pasta_addcarryx_u64(&x14, &x15, x13, 0x0, x10);
   fiat_pasta_addcarryx_u64(&x16, &x17, 0x0, x14, (arg1[1]));
-  fiat_pasta_fp_mulx_u64(&x18, &x19, x16, aa);
-  fiat_pasta_fp_mulx_u64(&x20, &x21, x18, bb);
-  fiat_pasta_fp_mulx_u64(&x22, &x23, x18, cc);
-  fiat_pasta_fp_mulx_u64(&x24, &x25, x18, dd);
+  fiat_pasta_mulx_u64(&x18, &x19, x16, aa);
+  fiat_pasta_mulx_u64(&x20, &x21, x18, bb);
+  fiat_pasta_mulx_u64(&x22, &x23, x18, cc);
+  fiat_pasta_mulx_u64(&x24, &x25, x18, dd);
   fiat_pasta_addcarryx_u64(&x26, &x27, 0x0, x25, x22);
   fiat_pasta_addcarryx_u64(&x28, &x29, 0x0, x16, x24);
   fiat_pasta_addcarryx_u64(&x30, &x31, x29, (x17 + (x15 + (x11 + x7))), x26);
@@ -988,10 +872,10 @@ void fiat_pasta_fp_from_montgomery(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_addcarryx_u64(&x36, &x37, 0x0, x30, (arg1[2]));
   fiat_pasta_addcarryx_u64(&x38, &x39, x37, x32, 0x0);
   fiat_pasta_addcarryx_u64(&x40, &x41, x39, x34, 0x0);
-  fiat_pasta_fp_mulx_u64(&x42, &x43, x36, aa);
-  fiat_pasta_fp_mulx_u64(&x44, &x45, x42, bb);
-  fiat_pasta_fp_mulx_u64(&x46, &x47, x42, cc);
-  fiat_pasta_fp_mulx_u64(&x48, &x49, x42, dd);
+  fiat_pasta_mulx_u64(&x42, &x43, x36, aa);
+  fiat_pasta_mulx_u64(&x44, &x45, x42, bb);
+  fiat_pasta_mulx_u64(&x46, &x47, x42, cc);
+  fiat_pasta_mulx_u64(&x48, &x49, x42, dd);
   fiat_pasta_addcarryx_u64(&x50, &x51, 0x0, x49, x46);
   fiat_pasta_addcarryx_u64(&x52, &x53, 0x0, x36, x48);
   fiat_pasta_addcarryx_u64(&x54, &x55, x53, x38, x50);
@@ -1000,25 +884,25 @@ void fiat_pasta_fp_from_montgomery(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_addcarryx_u64(&x60, &x61, 0x0, x54, (arg1[3]));
   fiat_pasta_addcarryx_u64(&x62, &x63, x61, x56, 0x0);
   fiat_pasta_addcarryx_u64(&x64, &x65, x63, x58, 0x0);
-  fiat_pasta_fp_mulx_u64(&x66, &x67, x60, aa);
-  fiat_pasta_fp_mulx_u64(&x68, &x69, x66, bb);
-  fiat_pasta_fp_mulx_u64(&x70, &x71, x66, cc);
-  fiat_pasta_fp_mulx_u64(&x72, &x73, x66, dd);
+  fiat_pasta_mulx_u64(&x66, &x67, x60, aa);
+  fiat_pasta_mulx_u64(&x68, &x69, x66, bb);
+  fiat_pasta_mulx_u64(&x70, &x71, x66, cc);
+  fiat_pasta_mulx_u64(&x72, &x73, x66, dd);
   fiat_pasta_addcarryx_u64(&x74, &x75, 0x0, x73, x70);
   fiat_pasta_addcarryx_u64(&x76, &x77, 0x0, x60, x72);
   fiat_pasta_addcarryx_u64(&x78, &x79, x77, x62, x74);
   fiat_pasta_addcarryx_u64(&x80, &x81, x79, x64, (x75 + x71));
   fiat_pasta_addcarryx_u64(&x82, &x83, x81, (x65 + (x59 + x45)), x68);
   x84 = (x83 + x69);
-  fiat_pasta_fp_subborrowx_u64(&x85, &x86, 0x0, x78, dd);
-  fiat_pasta_fp_subborrowx_u64(&x87, &x88, x86, x80, cc);
-  fiat_pasta_fp_subborrowx_u64(&x89, &x90, x88, x82, 0x0);
-  fiat_pasta_fp_subborrowx_u64(&x91, &x92, x90, x84, bb);
-  fiat_pasta_fp_subborrowx_u64(&x93, &x94, x92, 0x0, 0x0);
-  fiat_pasta_fp_cmovznz_u64(&out1[0], x94, x85, x78);
-  fiat_pasta_fp_cmovznz_u64(&out1[1], x94, x87, x80);
-  fiat_pasta_fp_cmovznz_u64(&out1[2], x94, x89, x82);
-  fiat_pasta_fp_cmovznz_u64(&out1[3], x94, x91, x84);
+  fiat_pasta_subborrowx_u64(&x85, &x86, 0x0, x78, dd);
+  fiat_pasta_subborrowx_u64(&x87, &x88, x86, x80, cc);
+  fiat_pasta_subborrowx_u64(&x89, &x90, x88, x82, 0x0);
+  fiat_pasta_subborrowx_u64(&x91, &x92, x90, x84, bb);
+  fiat_pasta_subborrowx_u64(&x93, &x94, x92, 0x0, 0x0);
+  fiat_pasta_cmovznz_u64(&out1[0], x94, x85, x78);
+  fiat_pasta_cmovznz_u64(&out1[1], x94, x87, x80);
+  fiat_pasta_cmovznz_u64(&out1[2], x94, x89, x82);
+  fiat_pasta_cmovznz_u64(&out1[3], x94, x91, x84);
 }
 
 /*
@@ -1206,26 +1090,26 @@ void fiat_pasta_fp_to_montgomery(uint64_t out1[4], const uint64_t arg1[4]) {
   x2 = (arg1[2]);
   x3 = (arg1[3]);
   x4 = (arg1[0]);
-  fiat_pasta_fp_mulx_u64(&x5, &x6, x4, UINT64_C(0x96d41af7b9cb714));
-  fiat_pasta_fp_mulx_u64(&x7, &x8, x4, UINT64_C(0x7797a99bc3c95d18));
-  fiat_pasta_fp_mulx_u64(&x9, &x10, x4, UINT64_C(0xd7d30dbd8b0de0e7));
-  fiat_pasta_fp_mulx_u64(&x11, &x12, x4, UINT64_C(0x8c78ecb30000000f));
+  fiat_pasta_mulx_u64(&x5, &x6, x4, UINT64_C(0x96d41af7b9cb714));
+  fiat_pasta_mulx_u64(&x7, &x8, x4, UINT64_C(0x7797a99bc3c95d18));
+  fiat_pasta_mulx_u64(&x9, &x10, x4, UINT64_C(0xd7d30dbd8b0de0e7));
+  fiat_pasta_mulx_u64(&x11, &x12, x4, UINT64_C(0x8c78ecb30000000f));
   fiat_pasta_addcarryx_u64(&x13, &x14, 0x0, x12, x9);
   fiat_pasta_addcarryx_u64(&x15, &x16, x14, x10, x7);
   fiat_pasta_addcarryx_u64(&x17, &x18, x16, x8, x5);
-  fiat_pasta_fp_mulx_u64(&x19, &x20, x11, aa);
-  fiat_pasta_fp_mulx_u64(&x21, &x22, x19, bb);
-  fiat_pasta_fp_mulx_u64(&x23, &x24, x19, cc);
-  fiat_pasta_fp_mulx_u64(&x25, &x26, x19, dd);
+  fiat_pasta_mulx_u64(&x19, &x20, x11, aa);
+  fiat_pasta_mulx_u64(&x21, &x22, x19, bb);
+  fiat_pasta_mulx_u64(&x23, &x24, x19, cc);
+  fiat_pasta_mulx_u64(&x25, &x26, x19, dd);
   fiat_pasta_addcarryx_u64(&x27, &x28, 0x0, x26, x23);
   fiat_pasta_addcarryx_u64(&x29, &x30, 0x0, x11, x25);
   fiat_pasta_addcarryx_u64(&x31, &x32, x30, x13, x27);
   fiat_pasta_addcarryx_u64(&x33, &x34, x32, x15, (x28 + x24));
   fiat_pasta_addcarryx_u64(&x35, &x36, x34, x17, x21);
-  fiat_pasta_fp_mulx_u64(&x37, &x38, x1, UINT64_C(0x96d41af7b9cb714));
-  fiat_pasta_fp_mulx_u64(&x39, &x40, x1, UINT64_C(0x7797a99bc3c95d18));
-  fiat_pasta_fp_mulx_u64(&x41, &x42, x1, UINT64_C(0xd7d30dbd8b0de0e7));
-  fiat_pasta_fp_mulx_u64(&x43, &x44, x1, UINT64_C(0x8c78ecb30000000f));
+  fiat_pasta_mulx_u64(&x37, &x38, x1, UINT64_C(0x96d41af7b9cb714));
+  fiat_pasta_mulx_u64(&x39, &x40, x1, UINT64_C(0x7797a99bc3c95d18));
+  fiat_pasta_mulx_u64(&x41, &x42, x1, UINT64_C(0xd7d30dbd8b0de0e7));
+  fiat_pasta_mulx_u64(&x43, &x44, x1, UINT64_C(0x8c78ecb30000000f));
   fiat_pasta_addcarryx_u64(&x45, &x46, 0x0, x44, x41);
   fiat_pasta_addcarryx_u64(&x47, &x48, x46, x42, x39);
   fiat_pasta_addcarryx_u64(&x49, &x50, x48, x40, x37);
@@ -1233,19 +1117,19 @@ void fiat_pasta_fp_to_montgomery(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_addcarryx_u64(&x53, &x54, x52, x33, x45);
   fiat_pasta_addcarryx_u64(&x55, &x56, x54, x35, x47);
   fiat_pasta_addcarryx_u64(&x57, &x58, x56, ((x36 + (x18 + x6)) + x22), x49);
-  fiat_pasta_fp_mulx_u64(&x59, &x60, x51, aa);
-  fiat_pasta_fp_mulx_u64(&x61, &x62, x59, bb);
-  fiat_pasta_fp_mulx_u64(&x63, &x64, x59, cc);
-  fiat_pasta_fp_mulx_u64(&x65, &x66, x59, dd);
+  fiat_pasta_mulx_u64(&x59, &x60, x51, aa);
+  fiat_pasta_mulx_u64(&x61, &x62, x59, bb);
+  fiat_pasta_mulx_u64(&x63, &x64, x59, cc);
+  fiat_pasta_mulx_u64(&x65, &x66, x59, dd);
   fiat_pasta_addcarryx_u64(&x67, &x68, 0x0, x66, x63);
   fiat_pasta_addcarryx_u64(&x69, &x70, 0x0, x51, x65);
   fiat_pasta_addcarryx_u64(&x71, &x72, x70, x53, x67);
   fiat_pasta_addcarryx_u64(&x73, &x74, x72, x55, (x68 + x64));
   fiat_pasta_addcarryx_u64(&x75, &x76, x74, x57, x61);
-  fiat_pasta_fp_mulx_u64(&x77, &x78, x2, UINT64_C(0x96d41af7b9cb714));
-  fiat_pasta_fp_mulx_u64(&x79, &x80, x2, UINT64_C(0x7797a99bc3c95d18));
-  fiat_pasta_fp_mulx_u64(&x81, &x82, x2, UINT64_C(0xd7d30dbd8b0de0e7));
-  fiat_pasta_fp_mulx_u64(&x83, &x84, x2, UINT64_C(0x8c78ecb30000000f));
+  fiat_pasta_mulx_u64(&x77, &x78, x2, UINT64_C(0x96d41af7b9cb714));
+  fiat_pasta_mulx_u64(&x79, &x80, x2, UINT64_C(0x7797a99bc3c95d18));
+  fiat_pasta_mulx_u64(&x81, &x82, x2, UINT64_C(0xd7d30dbd8b0de0e7));
+  fiat_pasta_mulx_u64(&x83, &x84, x2, UINT64_C(0x8c78ecb30000000f));
   fiat_pasta_addcarryx_u64(&x85, &x86, 0x0, x84, x81);
   fiat_pasta_addcarryx_u64(&x87, &x88, x86, x82, x79);
   fiat_pasta_addcarryx_u64(&x89, &x90, x88, x80, x77);
@@ -1253,19 +1137,19 @@ void fiat_pasta_fp_to_montgomery(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_addcarryx_u64(&x93, &x94, x92, x73, x85);
   fiat_pasta_addcarryx_u64(&x95, &x96, x94, x75, x87);
   fiat_pasta_addcarryx_u64(&x97, &x98, x96, ((x76 + (x58 + (x50 + x38))) + x62), x89);
-  fiat_pasta_fp_mulx_u64(&x99, &x100, x91, aa);
-  fiat_pasta_fp_mulx_u64(&x101, &x102, x99, bb);
-  fiat_pasta_fp_mulx_u64(&x103, &x104, x99, cc);
-  fiat_pasta_fp_mulx_u64(&x105, &x106, x99, dd);
+  fiat_pasta_mulx_u64(&x99, &x100, x91, aa);
+  fiat_pasta_mulx_u64(&x101, &x102, x99, bb);
+  fiat_pasta_mulx_u64(&x103, &x104, x99, cc);
+  fiat_pasta_mulx_u64(&x105, &x106, x99, dd);
   fiat_pasta_addcarryx_u64(&x107, &x108, 0x0, x106, x103);
   fiat_pasta_addcarryx_u64(&x109, &x110, 0x0, x91, x105);
   fiat_pasta_addcarryx_u64(&x111, &x112, x110, x93, x107);
   fiat_pasta_addcarryx_u64(&x113, &x114, x112, x95, (x108 + x104));
   fiat_pasta_addcarryx_u64(&x115, &x116, x114, x97, x101);
-  fiat_pasta_fp_mulx_u64(&x117, &x118, x3, UINT64_C(0x96d41af7b9cb714));
-  fiat_pasta_fp_mulx_u64(&x119, &x120, x3, UINT64_C(0x7797a99bc3c95d18));
-  fiat_pasta_fp_mulx_u64(&x121, &x122, x3, UINT64_C(0xd7d30dbd8b0de0e7));
-  fiat_pasta_fp_mulx_u64(&x123, &x124, x3, UINT64_C(0x8c78ecb30000000f));
+  fiat_pasta_mulx_u64(&x117, &x118, x3, UINT64_C(0x96d41af7b9cb714));
+  fiat_pasta_mulx_u64(&x119, &x120, x3, UINT64_C(0x7797a99bc3c95d18));
+  fiat_pasta_mulx_u64(&x121, &x122, x3, UINT64_C(0xd7d30dbd8b0de0e7));
+  fiat_pasta_mulx_u64(&x123, &x124, x3, UINT64_C(0x8c78ecb30000000f));
   fiat_pasta_addcarryx_u64(&x125, &x126, 0x0, x124, x121);
   fiat_pasta_addcarryx_u64(&x127, &x128, x126, x122, x119);
   fiat_pasta_addcarryx_u64(&x129, &x130, x128, x120, x117);
@@ -1273,41 +1157,25 @@ void fiat_pasta_fp_to_montgomery(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_addcarryx_u64(&x133, &x134, x132, x113, x125);
   fiat_pasta_addcarryx_u64(&x135, &x136, x134, x115, x127);
   fiat_pasta_addcarryx_u64(&x137, &x138, x136, ((x116 + (x98 + (x90 + x78))) + x102), x129);
-  fiat_pasta_fp_mulx_u64(&x139, &x140, x131, aa);
-  fiat_pasta_fp_mulx_u64(&x141, &x142, x139, bb);
-  fiat_pasta_fp_mulx_u64(&x143, &x144, x139, cc);
-  fiat_pasta_fp_mulx_u64(&x145, &x146, x139, dd);
+  fiat_pasta_mulx_u64(&x139, &x140, x131, aa);
+  fiat_pasta_mulx_u64(&x141, &x142, x139, bb);
+  fiat_pasta_mulx_u64(&x143, &x144, x139, cc);
+  fiat_pasta_mulx_u64(&x145, &x146, x139, dd);
   fiat_pasta_addcarryx_u64(&x147, &x148, 0x0, x146, x143);
   fiat_pasta_addcarryx_u64(&x149, &x150, 0x0, x131, x145);
   fiat_pasta_addcarryx_u64(&x151, &x152, x150, x133, x147);
   fiat_pasta_addcarryx_u64(&x153, &x154, x152, x135, (x148 + x144));
   fiat_pasta_addcarryx_u64(&x155, &x156, x154, x137, x141);
   x157 = ((x156 + (x138 + (x130 + x118))) + x142);
-  fiat_pasta_fp_subborrowx_u64(&x158, &x159, 0x0, x151, dd);
-  fiat_pasta_fp_subborrowx_u64(&x160, &x161, x159, x153, cc);
-  fiat_pasta_fp_subborrowx_u64(&x162, &x163, x161, x155, 0x0);
-  fiat_pasta_fp_subborrowx_u64(&x164, &x165, x163, x157, bb);
-  fiat_pasta_fp_subborrowx_u64(&x166, &x167, x165, 0x0, 0x0);
-  fiat_pasta_fp_cmovznz_u64(&out1[0], x167, x158, x151);
-  fiat_pasta_fp_cmovznz_u64(&out1[1], x167, x160, x153);
-  fiat_pasta_fp_cmovznz_u64(&out1[2], x167, x162, x155);
-  fiat_pasta_fp_cmovznz_u64(&out1[3], x167, x164, x157);
-}
-
-/*
- * The function fiat_pasta_fp_nonzero outputs a single non-zero word if the input is non-zero and zero otherwise.
- * Preconditions:
- *   0 ≤ eval arg1 < m
- * Postconditions:
- *   out1 = 0 ↔ eval (from_montgomery arg1) mod m = 0
- *
- * Input Bounds:
- *   arg1: [[0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff]]
- * Output Bounds:
- *   out1: [0x0 ~> 0xffffffffffffffff]
- */
-void fiat_pasta_fp_nonzero(uint64_t* out1, const uint64_t arg1[4]) {
-  *out1 = ((arg1[0]) | ((arg1[1]) | ((arg1[2]) | (arg1[3]))));
+  fiat_pasta_subborrowx_u64(&x158, &x159, 0x0, x151, dd);
+  fiat_pasta_subborrowx_u64(&x160, &x161, x159, x153, cc);
+  fiat_pasta_subborrowx_u64(&x162, &x163, x161, x155, 0x0);
+  fiat_pasta_subborrowx_u64(&x164, &x165, x163, x157, bb);
+  fiat_pasta_subborrowx_u64(&x166, &x167, x165, 0x0, 0x0);
+  fiat_pasta_cmovznz_u64(&out1[0], x167, x158, x151);
+  fiat_pasta_cmovznz_u64(&out1[1], x167, x160, x153);
+  fiat_pasta_cmovznz_u64(&out1[2], x167, x162, x155);
+  fiat_pasta_cmovznz_u64(&out1[3], x167, x164, x157);
 }
 
 /*
@@ -1323,10 +1191,10 @@ void fiat_pasta_fp_nonzero(uint64_t* out1, const uint64_t arg1[4]) {
  *   out1: [[0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff]]
  */
 void fiat_pasta_fp_selectznz(uint64_t out1[4], fiat_pasta_uint1 arg1, const uint64_t arg2[4], const uint64_t arg3[4]) {
-  fiat_pasta_fp_cmovznz_u64(&out1[0], arg1, (arg2[0]), (arg3[0]));
-  fiat_pasta_fp_cmovznz_u64(&out1[1], arg1, (arg2[1]), (arg3[1]));
-  fiat_pasta_fp_cmovznz_u64(&out1[2], arg1, (arg2[2]), (arg3[2]));
-  fiat_pasta_fp_cmovznz_u64(&out1[3], arg1, (arg2[3]), (arg3[3]));
+  fiat_pasta_cmovznz_u64(&out1[0], arg1, (arg2[0]), (arg3[0]));
+  fiat_pasta_cmovznz_u64(&out1[1], arg1, (arg2[1]), (arg3[1]));
+  fiat_pasta_cmovznz_u64(&out1[2], arg1, (arg2[2]), (arg3[2]));
+  fiat_pasta_cmovznz_u64(&out1[3], arg1, (arg2[3]), (arg3[3]));
 }
 
 /*
@@ -1847,90 +1715,90 @@ void fiat_pasta_fp_divstep(uint64_t* out1, uint64_t out2[5], uint64_t out3[5], u
   fiat_pasta_addcarryx_u64(&x1, &x2, 0x0, (~arg1), 0x1);
   x3 = (fiat_pasta_uint1)((fiat_pasta_uint1)(x1 >> 63) & (fiat_pasta_uint1)((arg3[0]) & 0x1));
   fiat_pasta_addcarryx_u64(&x4, &x5, 0x0, (~arg1), 0x1);
-  fiat_pasta_fp_cmovznz_u64(&x6, x3, arg1, x4);
-  fiat_pasta_fp_cmovznz_u64(&x7, x3, (arg2[0]), (arg3[0]));
-  fiat_pasta_fp_cmovznz_u64(&x8, x3, (arg2[1]), (arg3[1]));
-  fiat_pasta_fp_cmovznz_u64(&x9, x3, (arg2[2]), (arg3[2]));
-  fiat_pasta_fp_cmovznz_u64(&x10, x3, (arg2[3]), (arg3[3]));
-  fiat_pasta_fp_cmovznz_u64(&x11, x3, (arg2[4]), (arg3[4]));
+  fiat_pasta_cmovznz_u64(&x6, x3, arg1, x4);
+  fiat_pasta_cmovznz_u64(&x7, x3, (arg2[0]), (arg3[0]));
+  fiat_pasta_cmovznz_u64(&x8, x3, (arg2[1]), (arg3[1]));
+  fiat_pasta_cmovznz_u64(&x9, x3, (arg2[2]), (arg3[2]));
+  fiat_pasta_cmovznz_u64(&x10, x3, (arg2[3]), (arg3[3]));
+  fiat_pasta_cmovznz_u64(&x11, x3, (arg2[4]), (arg3[4]));
   fiat_pasta_addcarryx_u64(&x12, &x13, 0x0, 0x1, (~(arg2[0])));
   fiat_pasta_addcarryx_u64(&x14, &x15, x13, 0x0, (~(arg2[1])));
   fiat_pasta_addcarryx_u64(&x16, &x17, x15, 0x0, (~(arg2[2])));
   fiat_pasta_addcarryx_u64(&x18, &x19, x17, 0x0, (~(arg2[3])));
   fiat_pasta_addcarryx_u64(&x20, &x21, x19, 0x0, (~(arg2[4])));
-  fiat_pasta_fp_cmovznz_u64(&x22, x3, (arg3[0]), x12);
-  fiat_pasta_fp_cmovznz_u64(&x23, x3, (arg3[1]), x14);
-  fiat_pasta_fp_cmovznz_u64(&x24, x3, (arg3[2]), x16);
-  fiat_pasta_fp_cmovznz_u64(&x25, x3, (arg3[3]), x18);
-  fiat_pasta_fp_cmovznz_u64(&x26, x3, (arg3[4]), x20);
-  fiat_pasta_fp_cmovznz_u64(&x27, x3, (arg4[0]), (arg5[0]));
-  fiat_pasta_fp_cmovznz_u64(&x28, x3, (arg4[1]), (arg5[1]));
-  fiat_pasta_fp_cmovznz_u64(&x29, x3, (arg4[2]), (arg5[2]));
-  fiat_pasta_fp_cmovznz_u64(&x30, x3, (arg4[3]), (arg5[3]));
+  fiat_pasta_cmovznz_u64(&x22, x3, (arg3[0]), x12);
+  fiat_pasta_cmovznz_u64(&x23, x3, (arg3[1]), x14);
+  fiat_pasta_cmovznz_u64(&x24, x3, (arg3[2]), x16);
+  fiat_pasta_cmovznz_u64(&x25, x3, (arg3[3]), x18);
+  fiat_pasta_cmovznz_u64(&x26, x3, (arg3[4]), x20);
+  fiat_pasta_cmovznz_u64(&x27, x3, (arg4[0]), (arg5[0]));
+  fiat_pasta_cmovznz_u64(&x28, x3, (arg4[1]), (arg5[1]));
+  fiat_pasta_cmovznz_u64(&x29, x3, (arg4[2]), (arg5[2]));
+  fiat_pasta_cmovznz_u64(&x30, x3, (arg4[3]), (arg5[3]));
   fiat_pasta_addcarryx_u64(&x31, &x32, 0x0, x27, x27);
   fiat_pasta_addcarryx_u64(&x33, &x34, x32, x28, x28);
   fiat_pasta_addcarryx_u64(&x35, &x36, x34, x29, x29);
   fiat_pasta_addcarryx_u64(&x37, &x38, x36, x30, x30);
-  fiat_pasta_fp_subborrowx_u64(&x39, &x40, 0x0, x31, dd);
-  fiat_pasta_fp_subborrowx_u64(&x41, &x42, x40, x33, cc);
-  fiat_pasta_fp_subborrowx_u64(&x43, &x44, x42, x35, 0x0);
-  fiat_pasta_fp_subborrowx_u64(&x45, &x46, x44, x37, bb);
-  fiat_pasta_fp_subborrowx_u64(&x47, &x48, x46, x38, 0x0);
+  fiat_pasta_subborrowx_u64(&x39, &x40, 0x0, x31, dd);
+  fiat_pasta_subborrowx_u64(&x41, &x42, x40, x33, cc);
+  fiat_pasta_subborrowx_u64(&x43, &x44, x42, x35, 0x0);
+  fiat_pasta_subborrowx_u64(&x45, &x46, x44, x37, bb);
+  fiat_pasta_subborrowx_u64(&x47, &x48, x46, x38, 0x0);
   x49 = (arg4[3]);
   x50 = (arg4[2]);
   x51 = (arg4[1]);
   x52 = (arg4[0]);
-  fiat_pasta_fp_subborrowx_u64(&x53, &x54, 0x0, 0x0, x52);
-  fiat_pasta_fp_subborrowx_u64(&x55, &x56, x54, 0x0, x51);
-  fiat_pasta_fp_subborrowx_u64(&x57, &x58, x56, 0x0, x50);
-  fiat_pasta_fp_subborrowx_u64(&x59, &x60, x58, 0x0, x49);
-  fiat_pasta_fp_cmovznz_u64(&x61, x60, 0x0, UINT64_C(0xffffffffffffffff));
+  fiat_pasta_subborrowx_u64(&x53, &x54, 0x0, 0x0, x52);
+  fiat_pasta_subborrowx_u64(&x55, &x56, x54, 0x0, x51);
+  fiat_pasta_subborrowx_u64(&x57, &x58, x56, 0x0, x50);
+  fiat_pasta_subborrowx_u64(&x59, &x60, x58, 0x0, x49);
+  fiat_pasta_cmovznz_u64(&x61, x60, 0x0, UINT64_C(0xffffffffffffffff));
   fiat_pasta_addcarryx_u64(&x62, &x63, 0x0, x53, (x61 & dd));
   fiat_pasta_addcarryx_u64(&x64, &x65, x63, x55, (x61 & cc));
   fiat_pasta_addcarryx_u64(&x66, &x67, x65, x57, 0x0);
   fiat_pasta_addcarryx_u64(&x68, &x69, x67, x59, (x61 & bb));
-  fiat_pasta_fp_cmovznz_u64(&x70, x3, (arg5[0]), x62);
-  fiat_pasta_fp_cmovznz_u64(&x71, x3, (arg5[1]), x64);
-  fiat_pasta_fp_cmovznz_u64(&x72, x3, (arg5[2]), x66);
-  fiat_pasta_fp_cmovznz_u64(&x73, x3, (arg5[3]), x68);
+  fiat_pasta_cmovznz_u64(&x70, x3, (arg5[0]), x62);
+  fiat_pasta_cmovznz_u64(&x71, x3, (arg5[1]), x64);
+  fiat_pasta_cmovznz_u64(&x72, x3, (arg5[2]), x66);
+  fiat_pasta_cmovznz_u64(&x73, x3, (arg5[3]), x68);
   x74 = (fiat_pasta_uint1)(x22 & 0x1);
-  fiat_pasta_fp_cmovznz_u64(&x75, x74, 0x0, x7);
-  fiat_pasta_fp_cmovznz_u64(&x76, x74, 0x0, x8);
-  fiat_pasta_fp_cmovznz_u64(&x77, x74, 0x0, x9);
-  fiat_pasta_fp_cmovznz_u64(&x78, x74, 0x0, x10);
-  fiat_pasta_fp_cmovznz_u64(&x79, x74, 0x0, x11);
+  fiat_pasta_cmovznz_u64(&x75, x74, 0x0, x7);
+  fiat_pasta_cmovznz_u64(&x76, x74, 0x0, x8);
+  fiat_pasta_cmovznz_u64(&x77, x74, 0x0, x9);
+  fiat_pasta_cmovznz_u64(&x78, x74, 0x0, x10);
+  fiat_pasta_cmovznz_u64(&x79, x74, 0x0, x11);
   fiat_pasta_addcarryx_u64(&x80, &x81, 0x0, x22, x75);
   fiat_pasta_addcarryx_u64(&x82, &x83, x81, x23, x76);
   fiat_pasta_addcarryx_u64(&x84, &x85, x83, x24, x77);
   fiat_pasta_addcarryx_u64(&x86, &x87, x85, x25, x78);
   fiat_pasta_addcarryx_u64(&x88, &x89, x87, x26, x79);
-  fiat_pasta_fp_cmovznz_u64(&x90, x74, 0x0, x27);
-  fiat_pasta_fp_cmovznz_u64(&x91, x74, 0x0, x28);
-  fiat_pasta_fp_cmovznz_u64(&x92, x74, 0x0, x29);
-  fiat_pasta_fp_cmovznz_u64(&x93, x74, 0x0, x30);
+  fiat_pasta_cmovznz_u64(&x90, x74, 0x0, x27);
+  fiat_pasta_cmovznz_u64(&x91, x74, 0x0, x28);
+  fiat_pasta_cmovznz_u64(&x92, x74, 0x0, x29);
+  fiat_pasta_cmovznz_u64(&x93, x74, 0x0, x30);
   fiat_pasta_addcarryx_u64(&x94, &x95, 0x0, x70, x90);
   fiat_pasta_addcarryx_u64(&x96, &x97, x95, x71, x91);
   fiat_pasta_addcarryx_u64(&x98, &x99, x97, x72, x92);
   fiat_pasta_addcarryx_u64(&x100, &x101, x99, x73, x93);
-  fiat_pasta_fp_subborrowx_u64(&x102, &x103, 0x0, x94, dd);
-  fiat_pasta_fp_subborrowx_u64(&x104, &x105, x103, x96, cc);
-  fiat_pasta_fp_subborrowx_u64(&x106, &x107, x105, x98, 0x0);
-  fiat_pasta_fp_subborrowx_u64(&x108, &x109, x107, x100, bb);
-  fiat_pasta_fp_subborrowx_u64(&x110, &x111, x109, x101, 0x0);
+  fiat_pasta_subborrowx_u64(&x102, &x103, 0x0, x94, dd);
+  fiat_pasta_subborrowx_u64(&x104, &x105, x103, x96, cc);
+  fiat_pasta_subborrowx_u64(&x106, &x107, x105, x98, 0x0);
+  fiat_pasta_subborrowx_u64(&x108, &x109, x107, x100, bb);
+  fiat_pasta_subborrowx_u64(&x110, &x111, x109, x101, 0x0);
   fiat_pasta_addcarryx_u64(&x112, &x113, 0x0, x6, 0x1);
   x114 = ((x80 >> 1) | ((x82 << 63) & UINT64_C(0xffffffffffffffff)));
   x115 = ((x82 >> 1) | ((x84 << 63) & UINT64_C(0xffffffffffffffff)));
   x116 = ((x84 >> 1) | ((x86 << 63) & UINT64_C(0xffffffffffffffff)));
   x117 = ((x86 >> 1) | ((x88 << 63) & UINT64_C(0xffffffffffffffff)));
   x118 = ((x88 & UINT64_C(0x8000000000000000)) | (x88 >> 1));
-  fiat_pasta_fp_cmovznz_u64(&x119, x48, x39, x31);
-  fiat_pasta_fp_cmovznz_u64(&x120, x48, x41, x33);
-  fiat_pasta_fp_cmovznz_u64(&x121, x48, x43, x35);
-  fiat_pasta_fp_cmovznz_u64(&x122, x48, x45, x37);
-  fiat_pasta_fp_cmovznz_u64(&x123, x111, x102, x94);
-  fiat_pasta_fp_cmovznz_u64(&x124, x111, x104, x96);
-  fiat_pasta_fp_cmovznz_u64(&x125, x111, x106, x98);
-  fiat_pasta_fp_cmovznz_u64(&x126, x111, x108, x100);
+  fiat_pasta_cmovznz_u64(&x119, x48, x39, x31);
+  fiat_pasta_cmovznz_u64(&x120, x48, x41, x33);
+  fiat_pasta_cmovznz_u64(&x121, x48, x43, x35);
+  fiat_pasta_cmovznz_u64(&x122, x48, x45, x37);
+  fiat_pasta_cmovznz_u64(&x123, x111, x102, x94);
+  fiat_pasta_cmovznz_u64(&x124, x111, x104, x96);
+  fiat_pasta_cmovznz_u64(&x125, x111, x106, x98);
+  fiat_pasta_cmovznz_u64(&x126, x111, x108, x100);
   *out1 = x112;
   out2[0] = x7;
   out2[1] = x8;
@@ -1979,22 +1847,9 @@ void fiat_pasta_fp_inv(uint64_t out1[4], const uint64_t arg1[4]) {
   fiat_pasta_fp_pow(out1, arg1, P_MINUS_2, 255);
 }
 
-bool fiat_pasta_fp_equals(const uint64_t x[4], const uint64_t y[4]) {
-  uint64_t x_minus_y[4];
-  fiat_pasta_fp_sub(x_minus_y, x, y);
-
-  uint64_t x_minus_y_nonzero;
-  fiat_pasta_fp_nonzero(&x_minus_y_nonzero, x_minus_y);
-  if (x_minus_y_nonzero) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
 bool fiat_pasta_fp_equals_zero(const uint64_t x[4]) {
   uint64_t x_nonzero;
-  fiat_pasta_fp_nonzero(&x_nonzero, x);
+  fiat_pasta_nonzero(&x_nonzero, x);
   if (x_nonzero) {
     return false;
   } else {
@@ -2007,10 +1862,10 @@ bool fiat_pasta_fp_equals_one(const uint64_t x[4]) {
   fiat_pasta_fp_set_one(one);
 
   uint64_t x_minus_1[4];
-  fiat_pasta_fp_sub(x_minus_1, x, one);
+  fiat_pasta_sub(x_minus_1, x, one, false);
 
   uint64_t x_minus_1_nonzero;
-  fiat_pasta_fp_nonzero(&x_minus_1_nonzero, x_minus_1);
+  fiat_pasta_nonzero(&x_minus_1_nonzero, x_minus_1);
   if (x_minus_1_nonzero) {
     return false;
   } else {
@@ -2024,7 +1879,7 @@ int fiat_pasta_fp_legendre(const uint64_t arg1[4]) {
   fiat_pasta_fp_pow(tmp, arg1, P_MINUS_1_OVER_2, 254);
 
   uint64_t input_non_zero;
-  fiat_pasta_fp_nonzero(&input_non_zero, arg1);
+  fiat_pasta_nonzero(&input_non_zero, arg1);
   if (input_non_zero) {
     if (fiat_pasta_fp_equals_one(tmp)) {
       return 1;

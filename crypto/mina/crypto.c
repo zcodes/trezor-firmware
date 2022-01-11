@@ -29,6 +29,7 @@
 #include "crypto.h"
 #include "utils.h"
 #include "poseidon.h"
+#include "pasta.h"
 #include "pasta_fp.h"
 #include "pasta_fq.h"
 #include "sha256.h"
@@ -214,7 +215,7 @@ void field_add(Field c, const Field a, const Field b)
 
 void field_sub(Field c, const Field a, const Field b)
 {
-    fiat_pasta_fp_sub(c, a, b);
+    fiat_pasta_sub(c, a, b, false);
 }
 
 void field_mul(Field c, const Field a, const Field b)
@@ -259,7 +260,7 @@ void field_negate(Field c, const Field a)
 
 unsigned int field_eq(const Field a, const Field b)
 {
-    if (fiat_pasta_fp_equals(a, b)) {
+    if (fiat_pasta_equals(a, b, false)) {
       return 1;
     } else {
       return 0;
@@ -303,7 +304,7 @@ void scalar_add(Scalar c, const Scalar a, const Scalar b)
 
 void scalar_sub(Scalar c, const Scalar a, const Scalar b)
 {
-    fiat_pasta_fq_sub(c, a, b);
+    fiat_pasta_sub(c, a, b, true);
 }
 
 void scalar_mul(Scalar c, const Scalar a, const Scalar b)
@@ -323,7 +324,7 @@ void scalar_negate(Scalar c, const Scalar a)
 
 bool scalar_eq(const Scalar a, const Scalar b)
 {
-    return fiat_pasta_fq_equals(a, b);
+    return fiat_pasta_equals(a, b, true);
 }
 
 // zero is the only point with Z = 0 in jacobian coordinates
@@ -1113,7 +1114,7 @@ bool verify(Signature *sig, const Compressed *pub_compressed, const Transaction 
 
     const bool ry_even = (ry_bigint[0] & 1) == 0;
 
-    return (ry_even && fiat_pasta_fp_equals(raff.x, sig->rx));
+    return (ry_even && fiat_pasta_equals(raff.x, sig->rx, false));
 }
 
 void sign(Signature *sig, const Keypair *kp, const Transaction *transaction, uint8_t network_id)
@@ -1152,7 +1153,7 @@ void sign(Signature *sig, const Keypair *kp, const Transaction *transaction, uin
     message_derive(k, kp, &input, network_id);
 
     uint64_t k_nonzero;
-    fiat_pasta_fq_nonzero(&k_nonzero, k);
+    fiat_pasta_nonzero(&k_nonzero, k);
     if (! k_nonzero) {
       return;
     }

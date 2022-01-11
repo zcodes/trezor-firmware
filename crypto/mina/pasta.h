@@ -20,6 +20,26 @@ static const uint64_t bb = 0x4000000000000000;
 static const uint64_t cc = 0x224698fc094cf91b;
 static const uint64_t dd = 0x992d30ed00000001;
 
+static const uint64_t mina_fp[4] = {
+    0x992d30ecffffffff,
+    0x4000000000000000,
+    0x224698fc094cf91b,
+    0x992d30ed00000001
+};
+
+static const uint64_t mina_fq[4] = {
+    0x8c46eb20ffffffff,
+    0x4000000000000000,
+    0x224698fc0994a8dd,
+    0x8c46eb2100000001,
+};
+
 void fiat_pasta_addcarryx_u64(uint64_t* out1, fiat_pasta_uint1* out2, fiat_pasta_uint1 arg1, uint64_t arg2, uint64_t arg3);
+void fiat_pasta_subborrowx_u64(uint64_t* out1, fiat_pasta_uint1* out2, fiat_pasta_uint1 arg1, uint64_t arg2, uint64_t arg3);
+void fiat_pasta_mulx_u64(uint64_t* out1, uint64_t* out2, uint64_t a, uint64_t b);
+void fiat_pasta_cmovznz_u64(uint64_t* out1, fiat_pasta_uint1 arg1, uint64_t arg2, uint64_t arg3);
+void fiat_pasta_sub(uint64_t out1[4], const uint64_t arg1[4], const uint64_t arg2[4], bool fq);
+void fiat_pasta_nonzero(uint64_t* out1, const uint64_t arg1[4]);
+bool fiat_pasta_equals(const uint64_t x[4], const uint64_t y[4], bool fq);
 
 #endif
