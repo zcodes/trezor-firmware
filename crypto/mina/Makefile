@@ -9,6 +9,7 @@ all: reference_signer unit_tests my_test
 SRCS = base10.c \
 	sha256.c \
 	crypto.c \
+	pasta.c \
 	pasta_fp.c \
 	pasta_fq.c \
 	poseidon.c \

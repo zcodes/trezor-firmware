@@ -22,10 +22,9 @@
 
 // #include <assert.h>
 
-#define THROW exit
-
 #include <assert.h>
 #include <math.h>
+#include <string.h>
 
 #include "crypto.h"
 #include "utils.h"
@@ -638,7 +637,7 @@ void roinput_add_field(ROInput *input, const Field a) {
   int remaining = (int)input->fields_capacity - (int)input->fields_len;
   if (remaining < 1) {
     printf("fields at capacity\n");
-    exit(1);
+    return;
   }
 
   size_t offset = LIMBS_PER_FIELD * input->fields_len;
@@ -653,7 +652,7 @@ void roinput_add_bit(ROInput *input, bool b) {
 
   if (remaining < 1) {
     printf("add_bit: bits at capacity\n");
-    exit(1);
+    return;
   }
 
   size_t offset = input->bits_len;
@@ -671,7 +670,7 @@ void roinput_add_scalar(ROInput *input, const Scalar a) {
 
   if (remaining < len) {
     printf("add_scalar: bits at capacity\n");
-    exit(1);
+    return;
   }
 
   size_t offset = input->bits_len;
@@ -689,7 +688,7 @@ void roinput_add_bytes(ROInput *input, const uint8_t *bytes, size_t len) {
   int remaining = (int)input->bits_capacity - (int)input->bits_len;
   if (remaining < 8 * len) {
     printf("add_bytes: bits at capacity (bytes)\n");
-    exit(1);
+    return;
   }
 
   // LSB bits
@@ -797,7 +796,7 @@ size_t roinput_to_fields(uint64_t *out, const ROInput *input) {
 void generate_keypair(Keypair *keypair, uint32_t account)
 {
     if (!keypair) {
-        THROW(INVALID_PARAMETER);
+        return;
     }
 
     uint64_t priv_non_montgomery[4] = { 0, 0, 0, 0 };
@@ -1155,7 +1154,7 @@ void sign(Signature *sig, const Keypair *kp, const Transaction *transaction, uin
     uint64_t k_nonzero;
     fiat_pasta_fq_nonzero(&k_nonzero, k);
     if (! k_nonzero) {
-      exit(1);
+      return;
     }
 
     // r = k*g

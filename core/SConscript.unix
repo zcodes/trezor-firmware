@@ -100,6 +100,7 @@ SOURCE_MOD += [
     'vendor/trezor-crypto/shamir.c',
     'vendor/trezor-crypto/slip39.c',
     'vendor/trezor-crypto/mina/crypto.c',
+    'vendor/trezor-crypto/mina/pasta.c',
     'vendor/trezor-crypto/mina/pasta_fp.c',
     'vendor/trezor-crypto/mina/pasta_fq.c',
     'vendor/trezor-crypto/mina/poseidon.c',

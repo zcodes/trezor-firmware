@@ -146,6 +146,12 @@ STATIC mp_obj_t mod_trezorcrypto_mina_sign(size_t n_args,
   vstr_init_len(&sig, 65);
   /* uint8_t pby = 0; */
   /* int ret = 0; */
+  Signature sigg = {0};
+  Keypair kp = {0};
+  Transaction tr = {0};
+  uint8_t network_id = 0;
+  sign(&sigg, &kp, &tr, network_id);
+  memcpy(sig.buf, sigg.s, 30);
 
   return mp_obj_new_str_from_vstr(&mp_type_bytes, &sig);
 }
@@ -166,6 +172,12 @@ STATIC mp_obj_t mod_trezorcrypto_mina_verify(mp_obj_t public_key,
   mp_get_buffer_raise(signature, &sig, MP_BUFFER_READ);
   mp_get_buffer_raise(digest, &dig, MP_BUFFER_READ);
   int ret = 0;
+  Signature sigg = {0};
+  Compressed kp = {0};
+  Transaction tr = {0};
+  uint8_t network_id = 0;
+  verify(&sigg, &kp, &tr, network_id);
+  memcpy(sig.buf, sigg.s, 30);
   return mp_obj_new_bool(ret == 0);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_3(mod_trezorcrypto_mina_verify_obj,
