@@ -22,8 +22,7 @@ static void matrix_mul(State s1, const Field **m, const size_t width)
 {
     Field tmp;
 
-    State s2;
-    bzero(s2, sizeof(s2));
+    State s2 = {0};
     for (size_t row = 0; row < width; row++) {
         // Inner product
         for (size_t col = 0; col < width; col++) {
@@ -114,7 +113,7 @@ bool poseidon_init(PoseidonCtx *ctx, const uint8_t network_id)
                SPONGE_BYTES(ctx->sponge_width));
     }
     else {
-        bzero(ctx->state, SPONGE_BYTES(ctx->sponge_width));
+        memset(ctx->state, 0, SPONGE_BYTES(ctx->sponge_width));
     }
 
     ctx->absorbed = 0;

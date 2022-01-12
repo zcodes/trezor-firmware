@@ -12,10 +12,6 @@
 #include "sha256.h"
 #include "curve_checks.h"
 
-#ifdef OSX
-  #define explicit_bzero bzero
-#endif
-
 #define ARRAY_LEN(x) (sizeof(x)/sizeof(x[0]))
 
 #define DEFAULT_TOKEN_ID 1
@@ -374,8 +370,7 @@ void generate_curve_checks(bool ledger_gen) {
   printf("// Test scalars\n");
   printf("static const Scalar S[%u][2] = {\n", EPOCHS);
 
-  Scalar s0; // Seed with zero scalar
-  explicit_bzero(s0, sizeof(s0));
+  Scalar s0 = {0}; // Seed with zero scalar
   for (size_t i = 0; i < EPOCHS; i++) {
     // Generate two more scalars
     Scalar s1, s2;
