@@ -41,7 +41,7 @@ typedef struct poseidon_context_t {
     void (*permutation)(struct poseidon_context_t *);
 } PoseidonCtx;
 
-bool poseidon_init(PoseidonCtx *ctx, const uint8_t type, const uint8_t network_id);
+bool poseidon_init(PoseidonCtx *ctx, const uint8_t network_id);
 void poseidon_update(PoseidonCtx *ctx, const Field *input, size_t len);
 void poseidon_digest(Scalar out, PoseidonCtx *ctx);
 #endif

@@ -551,7 +551,7 @@ typedef struct poseidon_test {
 } PoseidonTest;
 
 #define ARRAY_SAFE(...) __VA_ARGS__
-#define ASSERT_POSEIDON_EQ(type, input, len, out) { \
+#define ASSERT_POSEIDON_EQ(input, len, out) { \
   char *inputs[len] = input; \
   Field fields[len]; \
   for (size_t i = 0; i < len; i++) { \
@@ -560,7 +560,7 @@ typedef struct poseidon_test {
   Scalar target; \
   assert(scalar_from_hex(target, out)); \
   PoseidonCtx ctx; \
-  assert(poseidon_init(&ctx, type, NULLNET_ID)); \
+  assert(poseidon_init(&ctx, NULLNET_ID)); \
   poseidon_update(&ctx, fields, ARRAY_LEN(fields)); \
   Scalar output; \
   poseidon_digest(output, &ctx); \
@@ -591,7 +591,6 @@ void test_fields() {
 
 void test_poseidon() {
     ASSERT_POSEIDON_EQ(
-      POSEIDON_3W,
       ARRAY_SAFE({
       }),
       0,
@@ -599,7 +598,6 @@ void test_poseidon() {
     );
 
     ASSERT_POSEIDON_EQ(
-      POSEIDON_3W,
       ARRAY_SAFE({
         "df698e389c6f1987ffe186d806f8163738f5bf22e8be02572cce99dc6a4ab030"
       }),
@@ -608,7 +606,6 @@ void test_poseidon() {
     );
 
     ASSERT_POSEIDON_EQ(
-      POSEIDON_3W,
       ARRAY_SAFE({
         "56b648a5a85619814900a6b40375676803fe16fb1ad2d1fb79115eb1b52ac026",
         "f26a8a03d9c9bbd9c6b2a1324d2a3f4d894bafe25a7e4ad1a498705f4026ff2f"
@@ -618,7 +615,6 @@ void test_poseidon() {
     );
 
     ASSERT_POSEIDON_EQ(
-      POSEIDON_3W,
       ARRAY_SAFE({
         "075c41fa23e4690694df5ded43624fd60ab7ee6ec6dd48f44dc71bc206cecb26",
         "a4e2beebb09bd02ad42bbccc11051e8262b6ef50445d8382b253e91ab1557a0d",
@@ -629,7 +625,6 @@ void test_poseidon() {
     );
 
     ASSERT_POSEIDON_EQ(
-      POSEIDON_3W,
       ARRAY_SAFE({
         "a1a659b14e80d47318c6fcdbbd388de4272d5c2815eb458cf4f196d52403b639",
         "5e33065d1801131b64d13038ff9693a7ef6283f24ec8c19438d112ff59d50f04",
@@ -641,7 +636,6 @@ void test_poseidon() {
     );
 
     ASSERT_POSEIDON_EQ(
-      POSEIDON_3W,
       ARRAY_SAFE({
         "bccfee48dc76bb991c97bd531cf489f4ee37a66a15f5cfac31bdd4f159d4a905",
         "2d106fb21a262f85fd400a995c6d74bad48d8adab2554046871c215e585b072b",
@@ -651,132 +645,6 @@ void test_poseidon() {
       }),
       5,
       "cf7b9c2128f0e2c0fed4e1eca8d5954b629640c2458d24ba238c1bd3ccbc8e12"
-    );
-
-    ASSERT_POSEIDON_EQ(
-      POSEIDON_5W,
-      ARRAY_SAFE({
-      }),
-      0,
-      "01ca17b5913ca7a42adfd9353676cd9a939effb71e3246fd78a2d9283c664529"
-    );
-
-    ASSERT_POSEIDON_EQ(
-      POSEIDON_5W,
-      ARRAY_SAFE({
-        "df698e389c6f1987ffe186d806f8163738f5bf22e8be02572cce99dc6a4ab030"
-      }),
-      1,
-      "e7d279a184604c5ae038be9d7e62a23b75373825614f3b8175db6378e4fbc622"
-    );
-
-    ASSERT_POSEIDON_EQ(
-      POSEIDON_5W,
-      ARRAY_SAFE({
-        "56b648a5a85619814900a6b40375676803fe16fb1ad2d1fb79115eb1b52ac026",
-        "f26a8a03d9c9bbd9c6b2a1324d2a3f4d894bafe25a7e4ad1a498705f4026ff2f"
-      }),
-      2,
-      "5c3f7b7b0bd53a6713b23b5c84bc6842831acd1c6a322806706167f767ee360c"
-    );
-
-    ASSERT_POSEIDON_EQ(
-      POSEIDON_5W,
-      ARRAY_SAFE({
-        "075c41fa23e4690694df5ded43624fd60ab7ee6ec6dd48f44dc71bc206cecb26",
-        "a4e2beebb09bd02ad42bbccc11051e8262b6ef50445d8382b253e91ab1557a0d",
-        "7dfc23a1242d9c0d6eb16e924cfba342bb2fccf36b8cbaf296851f2e6c469639"
-      }),
-      3,
-      "e600482c4ef466db52ee02bf64cc9dd71a5a5e63eb94ff37033a10bce618a42d"
-    );
-
-    ASSERT_POSEIDON_EQ(
-      POSEIDON_5W,
-      ARRAY_SAFE({
-        "a1a659b14e80d47318c6fcdbbd388de4272d5c2815eb458cf4f196d52403b639",
-        "5e33065d1801131b64d13038ff9693a7ef6283f24ec8c19438d112ff59d50f04",
-        "38a8f4d0a9b6d0facdc4e825f6a2ba2b85401d5de119bf9f2bcb908235683e06",
-        "3456d0313a30d7ccb23bd71ed6aa70ab234dad683d8187b677aef73f42f4f52e"
-      }),
-      4,
-      "14278226e4fa816ef6444773268a8cf10c84ac3b8e7a62323f2f768a6d6c8537"
-    );
-
-    ASSERT_POSEIDON_EQ(
-      POSEIDON_5W,
-      ARRAY_SAFE({
-        "bccfee48dc76bb991c97bd531cf489f4ee37a66a15f5cfac31bdd4f159d4a905",
-        "2d106fb21a262f85fd400a995c6d74bad48d8adab2554046871c215e585b072b",
-        "8300e93ee8587956534d0756bb2aa575e5878c670cff5c8e3e55c62632333c06",
-        "879c32da31566f6d16afdefff94cba5260fec1057e97f19fc9a61dc2c54a6417",
-        "9c0aa6e5501cfb2d08aeaea5b3cddac2c9bee85d13324118b44bafb63a59611e"
-      }),
-      5,
-      "9775860a0bfff072224efdc657c239a81526ba2d4a46d95925bf868b7672d02b"
-    );
-
-    ASSERT_POSEIDON_EQ(
-      POSEIDON_3,
-      ARRAY_SAFE({
-      }),
-      0,
-      "87b24ed3fe1f35af6497c504acd6de35f06bd9c2e2490a1b5012715719de8d05"
-    );
-
-    ASSERT_POSEIDON_EQ(
-      POSEIDON_3,
-      ARRAY_SAFE({
-        "df698e389c6f1987ffe186d806f8163738f5bf22e8be02572cce99dc6a4ab030"
-      }),
-      1,
-      "d2f75185842484ba5a1a4e0ba5f3870ed48782cc4f89a8228f5eaf75e1833906"
-    );
-
-    ASSERT_POSEIDON_EQ(
-      POSEIDON_3,
-      ARRAY_SAFE({
-        "56b648a5a85619814900a6b40375676803fe16fb1ad2d1fb79115eb1b52ac026",
-        "f26a8a03d9c9bbd9c6b2a1324d2a3f4d894bafe25a7e4ad1a498705f4026ff2f"
-      }),
-      2,
-      "922d4e7f5802aee157ae13afb8c7a4aadca06913b9d36a9d1f20f5edb70e2c30"
-    );
-
-    ASSERT_POSEIDON_EQ(
-      POSEIDON_3,
-      ARRAY_SAFE({
-        "075c41fa23e4690694df5ded43624fd60ab7ee6ec6dd48f44dc71bc206cecb26",
-        "a4e2beebb09bd02ad42bbccc11051e8262b6ef50445d8382b253e91ab1557a0d",
-        "7dfc23a1242d9c0d6eb16e924cfba342bb2fccf36b8cbaf296851f2e6c469639"
-      }),
-      3,
-      "1879e13397b27ddec5fcdfb50183d106744368525494afcb256c8207129a103d"
-    );
-
-    ASSERT_POSEIDON_EQ(
-      POSEIDON_3,
-      ARRAY_SAFE({
-        "a1a659b14e80d47318c6fcdbbd388de4272d5c2815eb458cf4f196d52403b639",
-        "5e33065d1801131b64d13038ff9693a7ef6283f24ec8c19438d112ff59d50f04",
-        "38a8f4d0a9b6d0facdc4e825f6a2ba2b85401d5de119bf9f2bcb908235683e06",
-        "3456d0313a30d7ccb23bd71ed6aa70ab234dad683d8187b677aef73f42f4f52e"
-      }),
-      4,
-      "415aab36a9011fa8218bd67be746c7a8fd9ba83d01d1ca669574c60caef12d30"
-    );
-
-    ASSERT_POSEIDON_EQ(
-      POSEIDON_3,
-      ARRAY_SAFE({
-        "bccfee48dc76bb991c97bd531cf489f4ee37a66a15f5cfac31bdd4f159d4a905",
-        "2d106fb21a262f85fd400a995c6d74bad48d8adab2554046871c215e585b072b",
-        "8300e93ee8587956534d0756bb2aa575e5878c670cff5c8e3e55c62632333c06",
-        "879c32da31566f6d16afdefff94cba5260fec1057e97f19fc9a61dc2c54a6417",
-        "9c0aa6e5501cfb2d08aeaea5b3cddac2c9bee85d13324118b44bafb63a59611e"
-      }),
-      5,
-      "9d69ee732cfe073cc9417aef734293002c8db0c69b1e814cfa7a858e7c995d33"
     );
 }
 

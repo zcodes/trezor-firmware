@@ -13,8 +13,6 @@
 #include "pasta_fp.h"
 #include "poseidon.h"
 #include "poseidon_params_3w.h"
-#include "poseidon_params_5w.h"
-#include "poseidon_params_3.h"
 
 #define SPONGE_BYTES(sponge_width) (sizeof(Field)*sponge_width)
 #define ROUND_KEY(ctx, round, idx) *(Field *)(ctx->round_keys + (round*ctx->sponge_width + idx)*LIMBS_PER_FIELD)
@@ -71,29 +69,6 @@ static void permutation_3w(PoseidonCtx *ctx)
     }
 }
 
-static void permutation(PoseidonCtx *ctx)
-{
-    Field tmp;
-
-    // Full rounds only
-    for (size_t r = 0; r < ctx->full_rounds; r++) {
-        // sbox
-        for (unsigned int i = 0; i < ctx->sponge_width; i++) {
-            field_copy(tmp, ctx->state[i]);
-            field_pow(ctx->state[i], tmp, ctx->sbox_alpha);
-        }
-
-        // mds
-        matrix_mul(ctx->state, ctx->mds_matrix, ctx->sponge_width);
-
-        // ark
-        for (unsigned int i = 0; i < ctx->sponge_width; i++) {
-            field_copy(tmp, ctx->state[i]);
-            field_add(ctx->state[i], tmp, ROUND_KEY(ctx, r, i));
-        }
-    }
-}
-
 struct poseidon_config_t {
     size_t sponge_width;
     size_t sponge_rate;
@@ -103,7 +78,7 @@ struct poseidon_config_t {
     const Field **mds_matrix;
     const Field *sponge_iv[2];
     void (*permutation)(PoseidonCtx *);
-} _poseidon_config[3] = {
+} _poseidon_config[1] = {
     // 0x00 - POSEIDON_3W
     {
         .sponge_width = SPONGE_WIDTH_3W,
@@ -117,65 +92,25 @@ struct poseidon_config_t {
             (const Field *)mainnet_iv_3w
         },
         .permutation = permutation_3w
-    },
-    // 0x01 - POSEIDON_5W
-    {
-        .sponge_width = SPONGE_WIDTH_5W,
-        .sponge_rate  = SPONGE_RATE_5W,
-        .full_rounds  = ROUND_COUNT_5W,
-        .sbox_alpha   = SBOX_ALPHA_5W,
-        .round_keys   = (const Field ***)round_keys_5w,
-        .mds_matrix   = (const Field **)mds_matrix_5w,
-        .sponge_iv    = {
-            (const Field *)testnet_iv_5w,
-            (const Field *)mainnet_iv_5w
-        },
-        .permutation = permutation
-    },
-    // 0x02 - POSEIDON_3
-    {
-        .sponge_width = SPONGE_WIDTH_3,
-        .sponge_rate  = SPONGE_RATE_3,
-        .full_rounds  = ROUND_COUNT_3,
-        .sbox_alpha   = SBOX_ALPHA_3,
-        .round_keys   = (const Field ***)round_keys_3,
-        .mds_matrix   = (const Field **)mds_matrix_3,
-        .sponge_iv    = {
-            (const Field *)testnet_iv_3,
-            (const Field *)mainnet_iv_3
-        },
-        .permutation = permutation
     }
 };
 
-bool poseidon_init(PoseidonCtx *ctx, const uint8_t type, const uint8_t network_id)
+bool poseidon_init(PoseidonCtx *ctx, const uint8_t network_id)
 {
     if (!ctx) {
       return false;
     }
 
-    if (type != POSEIDON_3W &&
-        type != POSEIDON_5W &&
-        type != POSEIDON_3) {
-        return false;
-    }
-
-    if (network_id != TESTNET_ID &&
-        network_id != MAINNET_ID &&
-        network_id != NULLNET_ID) {
-        return false;
-    }
-
-    ctx->sponge_width = _poseidon_config[type].sponge_width;
-    ctx->sponge_rate  = _poseidon_config[type].sponge_rate;
-    ctx->full_rounds  = _poseidon_config[type].full_rounds;
-    ctx->sbox_alpha   = _poseidon_config[type].sbox_alpha;
-    ctx->round_keys   = _poseidon_config[type].round_keys;
-    ctx->mds_matrix   = _poseidon_config[type].mds_matrix;
-    ctx->permutation  = _poseidon_config[type].permutation;
+    ctx->sponge_width = _poseidon_config[POSEIDON_3W].sponge_width;
+    ctx->sponge_rate  = _poseidon_config[POSEIDON_3W].sponge_rate;
+    ctx->full_rounds  = _poseidon_config[POSEIDON_3W].full_rounds;
+    ctx->sbox_alpha   = _poseidon_config[POSEIDON_3W].sbox_alpha;
+    ctx->round_keys   = _poseidon_config[POSEIDON_3W].round_keys;
+    ctx->mds_matrix   = _poseidon_config[POSEIDON_3W].mds_matrix;
+    ctx->permutation  = _poseidon_config[POSEIDON_3W].permutation;
 
     if (network_id != NULLNET_ID) {
-        memcpy(ctx->state, _poseidon_config[type].sponge_iv[network_id],
+        memcpy(ctx->state, _poseidon_config[POSEIDON_3W].sponge_iv[network_id],
                SPONGE_BYTES(ctx->sponge_width));
     }
     else {
