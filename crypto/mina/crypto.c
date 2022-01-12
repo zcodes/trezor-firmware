@@ -69,12 +69,8 @@ static const Group GROUP_ZERO = {
 
 // g_generator = (1 : 12418654782883325593414442427049395787963493412651469444558597405572177144507)
 static const Affine AFFINE_ONE = {
-    {
-        0x34786d38fffffffd, 0x992c350be41914ad, 0xffffffffffffffff, 0x3fffffffffffffff
-    },
-    {
-        0x2f474795455d409d, 0xb443b9b74b8255d9, 0x270c412f2c9a5d66, 0x8e00f71ba43dd6b
-    }
+    { 0x34786d38fffffffd, 0x992c350be41914ad, 0xffffffffffffffff, 0x3fffffffffffffff },
+    { 0x2f474795455d409d, 0xb443b9b74b8255d9, 0x270c412f2c9a5d66, 0x8e00f71ba43dd6b }
 };
 
 #define DBL_EPSILON 2.22044604925031308085e-16
@@ -636,7 +632,9 @@ bool affine_is_on_curve(const Affine *p)
 void roinput_add_field(ROInput *input, const Field a) {
   int remaining = (int)input->fields_capacity - (int)input->fields_len;
   if (remaining < 1) {
+#ifndef RAND_PLATFORM_INDEPENDENT
     printf("fields at capacity\n");
+#endif
     return;
   }
 
@@ -651,7 +649,9 @@ void roinput_add_bit(ROInput *input, bool b) {
   int remaining = (int)input->bits_capacity - (int)input->bits_len;
 
   if (remaining < 1) {
+#ifndef RAND_PLATFORM_INDEPENDENT
     printf("add_bit: bits at capacity\n");
+#endif
     return;
   }
 
@@ -669,7 +669,9 @@ void roinput_add_scalar(ROInput *input, const Scalar a) {
   fiat_pasta_from_montgomery(scalar_bigint, a, true);
 
   if (remaining < len) {
+#ifndef RAND_PLATFORM_INDEPENDENT
     printf("add_scalar: bits at capacity\n");
+#endif
     return;
   }
 
@@ -687,7 +689,9 @@ void roinput_add_scalar(ROInput *input, const Scalar a) {
 void roinput_add_bytes(ROInput *input, const uint8_t *bytes, size_t len) {
   int remaining = (int)input->bits_capacity - (int)input->bits_len;
   if (remaining < 8 * len) {
+#ifndef RAND_PLATFORM_INDEPENDENT
     printf("add_bytes: bits at capacity (bytes)\n");
+#endif
     return;
   }
 
@@ -807,7 +811,9 @@ void generate_keypair(Keypair *keypair, uint32_t account)
     if (!fr) perror("urandom"), exit(EXIT_FAILURE);
     int res = fread((void*)priv_non_montgomery, sizeof(uint8_t), 32, fr);
     if (!res) {
+#ifndef RAND_PLATFORM_INDEPENDENT
         printf("can't read random number for test");
+#endif
     }
     fclose(fr), fr = NULL;
 #endif
@@ -835,10 +841,7 @@ void generate_keypair(Keypair *keypair, uint32_t account)
 
     priv_non_montgomery[3] &= (((uint64_t)1 << 62) - 1); // drop top two bits
     fiat_pasta_to_montgomery(keypair->priv, priv_non_montgomery, true);
-
     affine_scalar_mul(&keypair->pub, keypair->priv, &AFFINE_ONE);
-
-    return;
 }
 
 void generate_pubkey(Affine *pub_key, const Scalar priv_key)
