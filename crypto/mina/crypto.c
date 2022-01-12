@@ -210,7 +210,7 @@ bool field_is_odd(const Field y)
 
 void field_add(Field c, const Field a, const Field b)
 {
-    fiat_pasta_fp_add(c, a, b);
+    fiat_pasta_add(c, a, b, false);
 }
 
 void field_sub(Field c, const Field a, const Field b)
@@ -220,7 +220,7 @@ void field_sub(Field c, const Field a, const Field b)
 
 void field_mul(Field c, const Field a, const Field b)
 {
-    fiat_pasta_fp_mul(c, a, b);
+    fiat_pasta_mul(c, a, b, false);
 }
 
 void field_sq(Field c, const Field a)
@@ -299,7 +299,7 @@ void scalar_copy(Scalar b, const Scalar a)
 
 void scalar_add(Scalar c, const Scalar a, const Scalar b)
 {
-    fiat_pasta_fq_add(c, a, b);
+    fiat_pasta_add(c, a, b, true);
 }
 
 void scalar_sub(Scalar c, const Scalar a, const Scalar b)
@@ -309,7 +309,7 @@ void scalar_sub(Scalar c, const Scalar a, const Scalar b)
 
 void scalar_mul(Scalar c, const Scalar a, const Scalar b)
 {
-    fiat_pasta_fq_mul(c, a, b);
+    fiat_pasta_mul(c, a, b, true);
 }
 
 void scalar_sq(Scalar c, const Scalar a)
@@ -993,9 +993,9 @@ bool decompress(Affine *pt, const Compressed *compressed) {
   Field x2;
   fiat_pasta_fp_square(x2, pt->x);
   Field x3;
-  fiat_pasta_fp_mul(x3, x2, pt->x); // x^3
+  fiat_pasta_mul(x3, x2, pt->x, false); // x^3
   Field y2;
-  fiat_pasta_fp_add(y2, x3, GROUP_COEFF_B);
+  fiat_pasta_add(y2, x3, GROUP_COEFF_B, false);
 
   Field y_pre;
   if (!fiat_pasta_fp_sqrt(y_pre, y2)) {

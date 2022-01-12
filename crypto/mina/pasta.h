@@ -45,5 +45,7 @@ bool fiat_pasta_equals_zero(const uint64_t x[4]);
 void fiat_pasta_selectznz(uint64_t out1[4], fiat_pasta_uint1 arg1, const uint64_t arg2[4], const uint64_t arg3[4]);
 void fiat_pasta_to_bytes(uint8_t out1[32], const uint64_t arg1[4]);
 void fiat_pasta_from_bytes(uint64_t out1[4], const uint8_t arg1[32]);
+void fiat_pasta_add(uint64_t out1[4], const uint64_t arg1[4], const uint64_t arg2[4], bool fq);
+void fiat_pasta_mul(uint64_t out1[4], const uint64_t arg1[4], const uint64_t arg2[4], bool fq);
 
 #endif
