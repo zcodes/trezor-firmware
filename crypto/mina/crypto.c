@@ -255,7 +255,7 @@ void field_inv(Field c, const Field a)
 
 void field_negate(Field c, const Field a)
 {
-    fiat_pasta_fp_opp(c, a);
+    fiat_pasta_opp(c, a, false);
 }
 
 unsigned int field_eq(const Field a, const Field b)
@@ -319,7 +319,7 @@ void scalar_sq(Scalar c, const Scalar a)
 
 void scalar_negate(Scalar c, const Scalar a)
 {
-    fiat_pasta_fq_opp(c, a);
+    fiat_pasta_opp(c, a, true);
 }
 
 bool scalar_eq(const Scalar a, const Scalar b)
@@ -1008,7 +1008,7 @@ bool decompress(Affine *pt, const Compressed *compressed) {
   if (y_pre_odd == compressed->is_odd) {
     memcpy(pt->y, y_pre, sizeof(uint64_t) * 4);
   } else {
-    fiat_pasta_fp_opp(pt->y, y_pre);
+    fiat_pasta_opp(pt->y, y_pre, false);
   }
 
   return true;
@@ -1100,7 +1100,7 @@ bool verify(Signature *sig, const Compressed *pub_compressed, const Transaction 
 
     Group neg_epub;
     memcpy(neg_epub.X, epub.X, sizeof(uint64_t) * 4);
-    fiat_pasta_fp_opp(neg_epub.Y, epub.Y);
+    fiat_pasta_opp(neg_epub.Y, epub.Y, false);
     memcpy(neg_epub.Z, epub.Z, sizeof(uint64_t) * 4);
 
     Group r;

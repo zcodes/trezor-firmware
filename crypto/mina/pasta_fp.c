@@ -26,44 +26,6 @@
 
 #include "pasta.h"
 
-/*
- * The function fiat_pasta_fp_opp negates a field element in the Montgomery domain.
- * Preconditions:
- *   0 ≤ eval arg1 < m
- * Postconditions:
- *   eval (from_montgomery out1) mod m = -eval (from_montgomery arg1) mod m
- *   0 ≤ eval out1 < m
- *
- * Input Bounds:
- *   arg1: [[0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff]]
- * Output Bounds:
- *   out1: [[0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff]]
- */
-void fiat_pasta_fp_opp(uint64_t out1[4], const uint64_t arg1[4]) {
-  uint64_t x1;
-  fiat_pasta_uint1 x2;
-  uint64_t x3;
-  fiat_pasta_uint1 x4;
-  uint64_t x5;
-  fiat_pasta_uint1 x6;
-  uint64_t x7;
-  fiat_pasta_uint1 x8;
-  uint64_t x9;
-  fiat_pasta_uint1 x11;
-  fiat_pasta_uint1 x13;
-  fiat_pasta_uint1 x15;
-  fiat_pasta_uint1 x17;
-  fiat_pasta_subborrowx_u64(&x1, &x2, 0x0, 0x0, (arg1[0]));
-  fiat_pasta_subborrowx_u64(&x3, &x4, x2, 0x0, (arg1[1]));
-  fiat_pasta_subborrowx_u64(&x5, &x6, x4, 0x0, (arg1[2]));
-  fiat_pasta_subborrowx_u64(&x7, &x8, x6, 0x0, (arg1[3]));
-  fiat_pasta_cmovznz_u64(&x9, x8, 0x0, UINT64_C(0xffffffffffffffff));
-  fiat_pasta_addcarryx_u64(&out1[0], &x11, 0x0, x1, (x9 & dd));
-  fiat_pasta_addcarryx_u64(&out1[1], &x13, x11, x3, (x9 & cc));
-  fiat_pasta_addcarryx_u64(&out1[2], &x15, x13, x5, 0x0);
-  fiat_pasta_addcarryx_u64(&out1[3], &x17, x15, x7, (x9 & bb));
-}
-
 
 
 /*
@@ -81,24 +43,6 @@ void fiat_pasta_fp_set_one(uint64_t out1[4]) {
   out1[1] = UINT64_C(0x992c350be41914ad);
   out1[2] = UINT64_C(0xffffffffffffffff);
   out1[3] = UINT64_C(0x3fffffffffffffff);
-}
-
-/*
- * The function fiat_pasta_fp_msat returns the saturated represtation of the prime modulus.
- * Postconditions:
- *   twos_complement_eval out1 = m
- *   0 ≤ eval out1 < m
- *
- * Input Bounds:
- * Output Bounds:
- *   out1: [[0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff]]
- */
-void fiat_pasta_fp_msat(uint64_t out1[5]) {
-  out1[0] = dd;
-  out1[1] = cc;
-  out1[2] = 0x0;
-  out1[3] = bb;
-  out1[4] = 0x0;
 }
 
 /*
