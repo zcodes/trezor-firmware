@@ -193,7 +193,7 @@ bool field_from_hex(Field b, const char *hex) {
 
 void field_copy(Field c, const Field a)
 {
-    memcpy(c, a, sizeof(uint64_t) * 4);
+    memcpy(c, a, FIELD_BYTES);
 }
 
 bool field_is_odd(const Field y)
@@ -220,7 +220,7 @@ void field_mul(Field c, const Field a, const Field b)
 
 void field_sq(Field c, const Field a)
 {
-    fiat_pasta_square(c, a, false);
+    fiat_pasta_mul(c, a, a, false);
 }
 
 void field_pow(Field c, const Field a, const uint8_t b)
@@ -289,7 +289,7 @@ void scalar_from_words(Scalar b, const uint64_t words[4])
 
 void scalar_copy(Scalar b, const Scalar a)
 {
-    memcpy(b, a, sizeof(uint64_t) * 4);
+    memcpy(b, a, SCALAR_BYTES);
 }
 
 void scalar_add(Scalar c, const Scalar a, const Scalar b)
@@ -309,7 +309,7 @@ void scalar_mul(Scalar c, const Scalar a, const Scalar b)
 
 void scalar_sq(Scalar c, const Scalar a)
 {
-    fiat_pasta_square(c, a, true);
+    fiat_pasta_mul(c, a, a, true);
 }
 
 void scalar_negate(Scalar c, const Scalar a)
@@ -640,7 +640,7 @@ void roinput_add_field(ROInput *input, const Field a) {
 
   size_t offset = LIMBS_PER_FIELD * input->fields_len;
 
-  memcpy(input->fields + offset, a, sizeof(uint64_t) * 4);
+  memcpy(input->fields + offset, a, FIELD_BYTES);
 
   input->fields_len += 1;
 }
@@ -765,7 +765,7 @@ size_t roinput_to_fields(uint64_t *out, const ROInput *input) {
   // Copy over the field elements
   for (size_t i = 0; i < input->fields_len; ++i) {
     size_t offset = i * LIMBS_PER_FIELD;
-    memcpy(out + offset, input->fields + offset, sizeof(uint64_t) * 4);
+    memcpy(out + offset, input->fields + offset, FIELD_BYTES);
   }
   output_len += input->fields_len;
 
@@ -805,11 +805,11 @@ void generate_keypair(Keypair *keypair, uint32_t account)
 
     uint64_t priv_non_montgomery[4] = { 0, 0, 0, 0 };
 #ifdef RAND_PLATFORM_INDEPENDENT
-    random_buffer((uint8_t *) priv_non_montgomery, sizeof(uint64_t) * 4);
+    random_buffer((uint8_t *) priv_non_montgomery, FIELD_BYTES);
 #else
     FILE* fr = fopen("/dev/urandom", "r");
     if (!fr) perror("urandom"), exit(EXIT_FAILURE);
-    int res = fread((void*)priv_non_montgomery, sizeof(uint8_t), 32, fr);
+    int res = fread((void*)priv_non_montgomery, 1, 32, fr);
     if (!res) {
 #ifndef RAND_PLATFORM_INDEPENDENT
         printf("can't read random number for test");
@@ -981,7 +981,7 @@ void message_hash(Scalar out, const Affine *pub, const Field rx, const ROInput *
 #define FULL_BITS_BYTES ((FULL_BITS_LEN + 7) / 8)
 
 void compress(Compressed *compressed, const Affine *pt) {
-  memcpy(compressed->x, pt->x, sizeof(uint64_t) * 4);
+  memcpy(compressed->x, pt->x, 32);
 
   Field y_bigint;
   fiat_pasta_from_montgomery(y_bigint, pt->y, false);
@@ -990,10 +990,10 @@ void compress(Compressed *compressed, const Affine *pt) {
 }
 
 bool decompress(Affine *pt, const Compressed *compressed) {
-  memcpy(pt->x, compressed->x, sizeof(uint64_t) * 4);
+  memcpy(pt->x, compressed->x, 32);
 
   Field x2;
-  fiat_pasta_square(x2, pt->x, false);
+  fiat_pasta_mul(x2, pt->x, pt->x, false);
   Field x3;
   fiat_pasta_mul(x3, x2, pt->x, false); // x^3
   Field y2;
@@ -1008,7 +1008,7 @@ bool decompress(Affine *pt, const Compressed *compressed) {
 
   const bool y_pre_odd = (y_pre_bigint[0] & 1);
   if (y_pre_odd == compressed->is_odd) {
-    memcpy(pt->y, y_pre, sizeof(uint64_t) * 4);
+    memcpy(pt->y, y_pre, 32);
   } else {
     fiat_pasta_opp(pt->y, y_pre, false);
   }
@@ -1101,9 +1101,9 @@ bool verify(Signature *sig, const Compressed *pub_compressed, const Transaction 
     group_scalar_mul(&epub, e, &pub_proj);
 
     Group neg_epub;
-    memcpy(neg_epub.X, epub.X, sizeof(uint64_t) * 4);
+    memcpy(neg_epub.X, epub.X, 32);
     fiat_pasta_opp(neg_epub.Y, epub.Y, false);
-    memcpy(neg_epub.Z, epub.Z, sizeof(uint64_t) * 4);
+    memcpy(neg_epub.Z, epub.Z, 32);
 
     Group r;
     group_add(&r, &sg, &neg_epub);
@@ -1169,7 +1169,7 @@ void sign(Signature *sig, const Keypair *kp, const Transaction *transaction, uin
     if (field_is_odd(r.y)) {
         // negate (k = -k)
         Scalar tmp;
-        memcpy(tmp, k, sizeof(uint64_t) * 4);
+        memcpy(tmp, k, SCALAR_BYTES);
         scalar_negate(k, tmp);
     }
 

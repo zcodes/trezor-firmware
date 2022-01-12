@@ -26,37 +26,19 @@
 
 #include "pasta.h"
 
-/*
- * The function fiat_pasta_fp_set_one returns the field element one in the Montgomery domain.
- * Postconditions:
- *   eval (from_montgomery out1) mod m = 1 mod m
- *   0 ≤ eval out1 < m
- *
- * Input Bounds:
- * Output Bounds:
- *   out1: [[0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff], [0x0 ~> 0xffffffffffffffff]]
- */
-void fiat_pasta_fp_set_one(uint64_t out1[4]) {
-  out1[0] = UINT64_C(0x34786d38fffffffd);
-  out1[1] = UINT64_C(0x992c350be41914ad);
-  out1[2] = UINT64_C(0xffffffffffffffff);
-  out1[3] = UINT64_C(0x3fffffffffffffff);
-}
-
 void fiat_pasta_fp_pow(uint64_t out1[4], const uint64_t arg1[4], const bool* msb_bits, const size_t bits_len) {
-  fiat_pasta_fp_set_one(out1);
-
   uint64_t tmp[4];
+  memcpy(out1, mina_fp_one, 32);
 
   // square and multiply
   for (size_t i = 0; i < bits_len; ++i) {
     // out1 = out1 * out1
-    memcpy(tmp, out1, sizeof(uint64_t) * 4);
-    fiat_pasta_square(out1, tmp, false);
+    memcpy(tmp, out1, 32);
+    fiat_pasta_mul(out1, tmp, tmp, false);
 
     if (msb_bits[i]) {
       // out1 = out1 * arg1
-      memcpy(tmp, out1, sizeof(uint64_t) * 4);
+      memcpy(tmp, out1, 32);
       fiat_pasta_mul(out1, tmp, arg1, false);
     }
   }
@@ -66,16 +48,22 @@ void fiat_pasta_fp_inv(uint64_t out1[4], const uint64_t arg1[4]) {
   // invert by Fermat's little theorem:
   // x^{p - 2} * x = 1
 
-  const bool P_MINUS_2[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+  const bool P_MINUS_2[] = {
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+    0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1,
+    0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+  };
   fiat_pasta_fp_pow(out1, arg1, P_MINUS_2, 255);
 }
 
 bool fiat_pasta_fp_equals_one(const uint64_t x[4]) {
-  uint64_t one[4];
-  fiat_pasta_fp_set_one(one);
-
   uint64_t x_minus_1[4];
-  fiat_pasta_sub(x_minus_1, x, one, false);
+  fiat_pasta_sub(x_minus_1, x, mina_fp_one, false);
 
   uint64_t x_minus_1_nonzero;
   fiat_pasta_nonzero(&x_minus_1_nonzero, x_minus_1);
@@ -88,10 +76,9 @@ bool fiat_pasta_fp_equals_one(const uint64_t x[4]) {
 
 int fiat_pasta_fp_legendre(const uint64_t arg1[4]) {
   uint64_t tmp[4];
+  uint64_t input_non_zero;
 
   fiat_pasta_fp_pow(tmp, arg1, P_MINUS_1_OVER_2, 254);
-
-  uint64_t input_non_zero;
   fiat_pasta_nonzero(&input_non_zero, arg1);
   if (input_non_zero) {
     if (fiat_pasta_fp_equals_one(tmp)) {
@@ -106,7 +93,6 @@ int fiat_pasta_fp_legendre(const uint64_t arg1[4]) {
 
 bool fiat_pasta_fp_sqrt(uint64_t x[4], const uint64_t value[4]) {
     // A few assertions to make sure s, t, and nqr are initialized.
-
     if (fiat_pasta_equals_zero(value)) {
       for (size_t j = 0; j < 4; ++j) { x[j] = 0; }
       return true;
@@ -123,7 +109,15 @@ bool fiat_pasta_fp_sqrt(uint64_t x[4], const uint64_t value[4]) {
     // z = 5^( (p - 1)/2^32 )
     uint64_t z[4] = { 0xa28db849bad6dbf0, 0x9083cd03d3b539df, 0xfba6b9ca9dc8448e, 0x3ec928747b89c6da };
 
-    const bool T_MINUS_ONE_DIV_TWO[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0};
+    const bool T_MINUS_ONE_DIV_TWO[] = {
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+      0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1,
+      0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0
+    };
     const size_t T_MINUS_ONE_DIV_TWO_LEN = 222;
 
     // w = value^((t - 1) / 2)
@@ -146,35 +140,35 @@ bool fiat_pasta_fp_sqrt(uint64_t x[4], const uint64_t value[4]) {
     while (! fiat_pasta_fp_equals_one(b))
     {
         size_t m = 0;
-        memcpy(b2m, b, sizeof(uint64_t) * 4);
+        memcpy(b2m, b, 32);
 
         while (! fiat_pasta_fp_equals_one(b2m))
         {
           // looping here
           // b2m = b2m * b2m
-            memcpy(tmp, b2m, sizeof(uint64_t) * 4);
-            fiat_pasta_square(b2m, tmp, false);
+            memcpy(tmp, b2m, 32);
+            fiat_pasta_mul(b2m, tmp, tmp, false);
 
             /* invariant: b2m = b^(2^m) after entering this loop */
             m += 1;
         }
 
         int j = v-m-1;
-        memcpy(w, z, sizeof(uint64_t) * 4);
+        memcpy(w, z, 32);
 
         while (j > 0)
         {
-            memcpy(tmp, w, sizeof(uint64_t) * 4);
-            fiat_pasta_square(w, tmp, false);
+            memcpy(tmp, w, 32);
+            fiat_pasta_mul(w, tmp, tmp, false);
             --j;
         } // w = z^2^(v-m-1)
 
-        fiat_pasta_square(z, w, false);
+        fiat_pasta_mul(z, w, w, false);
 
-        memcpy(tmp, b, sizeof(uint64_t) * 4);
+        memcpy(tmp, b, 32);
         fiat_pasta_mul(b, tmp, z, false);
 
-        memcpy(tmp, x, sizeof(uint64_t) * 4);
+        memcpy(tmp, x, 32);
         fiat_pasta_mul(x, tmp, w, false);
 
         v = m;
