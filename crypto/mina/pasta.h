@@ -47,5 +47,6 @@ void fiat_pasta_to_bytes(uint8_t out1[32], const uint64_t arg1[4]);
 void fiat_pasta_from_bytes(uint64_t out1[4], const uint8_t arg1[32]);
 void fiat_pasta_add(uint64_t out1[4], const uint64_t arg1[4], const uint64_t arg2[4], bool fq);
 void fiat_pasta_mul(uint64_t out1[4], const uint64_t arg1[4], const uint64_t arg2[4], bool fq);
+void fiat_pasta_square(uint64_t out1[4], const uint64_t arg1[4], bool fq);
 
 #endif

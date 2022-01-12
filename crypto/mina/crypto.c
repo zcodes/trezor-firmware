@@ -225,7 +225,7 @@ void field_mul(Field c, const Field a, const Field b)
 
 void field_sq(Field c, const Field a)
 {
-    fiat_pasta_fp_square(c, a);
+    fiat_pasta_square(c, a, false);
 }
 
 void field_pow(Field c, const Field a, const uint8_t b)
@@ -314,7 +314,7 @@ void scalar_mul(Scalar c, const Scalar a, const Scalar b)
 
 void scalar_sq(Scalar c, const Scalar a)
 {
-    fiat_pasta_fq_square(c, a);
+    fiat_pasta_square(c, a, true);
 }
 
 void scalar_negate(Scalar c, const Scalar a)
@@ -991,7 +991,7 @@ bool decompress(Affine *pt, const Compressed *compressed) {
   memcpy(pt->x, compressed->x, sizeof(uint64_t) * 4);
 
   Field x2;
-  fiat_pasta_fp_square(x2, pt->x);
+  fiat_pasta_square(x2, pt->x, false);
   Field x3;
   fiat_pasta_mul(x3, x2, pt->x, false); // x^3
   Field y2;
