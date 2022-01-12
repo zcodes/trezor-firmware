@@ -11,7 +11,6 @@
 #include "crypto.h"
 #include "pasta.h"
 #include "pasta_fp.h"
-#include "pasta_fq.h"
 #include "poseidon.h"
 #include "poseidon_params_3w.h"
 #include "poseidon_params_5w.h"

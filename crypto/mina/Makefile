@@ -11,7 +11,6 @@ SRCS = base10.c \
 	crypto.c \
 	pasta.c \
 	pasta_fp.c \
-	pasta_fq.c \
 	poseidon.c \
 	utils.c \
 	curve_checks.c \

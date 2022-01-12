@@ -5,7 +5,6 @@
 
 #include "pasta.h"
 #include "pasta_fp.h"
-#include "pasta_fq.h"
 #include "crypto.h"
 #include "poseidon.h"
 #include "base10.h"

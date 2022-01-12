@@ -102,7 +102,6 @@ SOURCE_MOD += [
     'vendor/trezor-crypto/mina/crypto.c',
     'vendor/trezor-crypto/mina/pasta.c',
     'vendor/trezor-crypto/mina/pasta_fp.c',
-    'vendor/trezor-crypto/mina/pasta_fq.c',
     'vendor/trezor-crypto/mina/poseidon.c',
     'vendor/trezor-crypto/mina/sha256.c',
     'vendor/trezor-crypto/mina/utils.c',

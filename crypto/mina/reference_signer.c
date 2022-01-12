@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "pasta.h"
 #include "pasta_fp.h"
-#include "pasta_fq.h"
 #include "crypto.h"
 #include "base10.h"
 #include "utils.h"

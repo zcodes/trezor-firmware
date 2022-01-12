@@ -31,7 +31,6 @@
 #include "poseidon.h"
 #include "pasta.h"
 #include "pasta_fp.h"
-#include "pasta_fq.h"
 #include "sha256.h"
 #include "../blake2b.h"
 #include "../base58.h"
