@@ -192,7 +192,7 @@ bool field_from_hex(Field b, const char *hex) {
       return false;
   }
 
-  fiat_pasta_fp_to_montgomery(b, (uint64_t *)bytes);
+  fiat_pasta_to_montgomery(b, (uint64_t *)bytes, false);
   return true;
 }
 
@@ -280,7 +280,7 @@ bool scalar_from_hex(Field b, const char *hex) {
       return false;
   }
 
-  fiat_pasta_fq_to_montgomery(b, (uint64_t *)bytes);
+  fiat_pasta_to_montgomery(b, (uint64_t *)bytes, true);
   return true;
 }
 
@@ -289,7 +289,7 @@ void scalar_from_words(Scalar b, const uint64_t words[4])
     uint64_t tmp[4];
     memcpy(tmp, words, sizeof(tmp));
     tmp[3] &= (((uint64_t)1 << 62) - 1); // drop top two bits
-    fiat_pasta_fq_to_montgomery(b, tmp);
+    fiat_pasta_to_montgomery(b, tmp, true);
 }
 
 void scalar_copy(Scalar b, const Scalar a)
@@ -784,7 +784,7 @@ size_t roinput_to_fields(uint64_t *out, const ROInput *input) {
 
       chunk_non_montgomery[limb_idx] =  chunk_non_montgomery[limb_idx] | (((uint64_t) b) << in_limb_idx);
     }
-    fiat_pasta_fp_to_montgomery(next_chunk, chunk_non_montgomery);
+    fiat_pasta_to_montgomery(next_chunk, chunk_non_montgomery, false);
 
     output_len += 1;
     bits_consumed += chunk_size_in_bits;
@@ -835,7 +835,7 @@ void generate_keypair(Keypair *keypair, uint32_t account)
     // insignificant amount of entropy.
 
     priv_non_montgomery[3] &= (((uint64_t)1 << 62) - 1); // drop top two bits
-    fiat_pasta_fq_to_montgomery(keypair->priv, priv_non_montgomery);
+    fiat_pasta_to_montgomery(keypair->priv, priv_non_montgomery, true);
 
     affine_scalar_mul(&keypair->pub, keypair->priv, &AFFINE_ONE);
 
@@ -937,7 +937,7 @@ void message_derive(Scalar out, const Keypair *kp, const ROInput *msg, uint8_t n
         tmp[i] |= ((uint64_t) hash_out[8*i + j]) << (8 * j);
       }
     }
-    fiat_pasta_fq_to_montgomery(out, tmp);
+    fiat_pasta_to_montgomery(out, tmp, true);
 }
 
 void message_hash(Scalar out, const Affine *pub, const Field rx, const ROInput *msg, const uint8_t hash_type, const uint8_t network_id)
@@ -1031,7 +1031,7 @@ void read_public_key_compressed(Compressed *out, const char *pubkeyBase58) {
     }
   }
 
-  fiat_pasta_fp_to_montgomery(out->x, x_coord_non_montgomery);
+  fiat_pasta_to_montgomery(out->x, x_coord_non_montgomery, false);
   out->is_odd = (bool) pubkeyBytes[offset + 32];
 }
 

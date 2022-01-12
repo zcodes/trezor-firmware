@@ -56,7 +56,7 @@ bool privkey_from_hex(Scalar priv_key, const char *priv_hex) {
       return false;
   }
 
-  fiat_pasta_fq_to_montgomery(priv_key, (uint64_t *)priv_bytes);
+  fiat_pasta_to_montgomery(priv_key, (uint64_t *)priv_bytes, true);
 
   char priv_key_hex[65];
   privkey_to_hex(priv_key_hex, sizeof(priv_key_hex), priv_key);

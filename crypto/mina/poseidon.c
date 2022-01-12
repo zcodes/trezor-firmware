@@ -212,5 +212,5 @@ void poseidon_digest(Scalar out, PoseidonCtx *ctx) {
     // since the difference in modulus between the two fields is < 2^125,
     // with high probability, a random value from one field will fit in the
     // other field.
-    fiat_pasta_fq_to_montgomery(out, tmp);
+    fiat_pasta_to_montgomery(out, tmp, true);
 }

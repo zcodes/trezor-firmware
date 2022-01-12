@@ -27,11 +27,25 @@ static const uint64_t mina_fp[4] = {
     0x992d30ed00000001
 };
 
+static const uint64_t mina_fp2[4] = {
+    0x96d41af7b9cb714,
+    0x7797a99bc3c95d18,
+    0xd7d30dbd8b0de0e7,
+    0x8c78ecb30000000f,
+};
+
 static const uint64_t mina_fq[4] = {
     0x8c46eb20ffffffff,
     0x4000000000000000,
     0x224698fc0994a8dd,
     0x8c46eb2100000001,
+};
+
+static const uint64_t mina_fq2[4] = {
+    0x96d41af7ccfdaa9,
+    0x7fae231004ccf590,
+    0x67bb433d891a16e3,
+    0xfc9678ff0000000f
 };
 
 void fiat_pasta_addcarryx_u64(uint64_t* out1, fiat_pasta_uint1* out2, fiat_pasta_uint1 arg1, uint64_t arg2, uint64_t arg3);
@@ -49,5 +63,6 @@ void fiat_pasta_add(uint64_t out1[4], const uint64_t arg1[4], const uint64_t arg
 void fiat_pasta_mul(uint64_t out1[4], const uint64_t arg1[4], const uint64_t arg2[4], bool fq);
 void fiat_pasta_square(uint64_t out1[4], const uint64_t arg1[4], bool fq);
 void fiat_pasta_from_montgomery(uint64_t out1[4], const uint64_t arg1[4], bool fq);
+void fiat_pasta_to_montgomery(uint64_t out1[4], const uint64_t arg1[4], bool fq);
 
 #endif
