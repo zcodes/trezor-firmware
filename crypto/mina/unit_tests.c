@@ -3,6 +3,7 @@
 #include <sys/resource.h>
 #include <inttypes.h>
 
+#include "pasta.h"
 #include "pasta_fp.h"
 #include "pasta_fq.h"
 #include "crypto.h"
@@ -32,7 +33,7 @@ void privkey_to_hex(char *hex, const size_t len, const Scalar priv_key) {
   }
 
   uint8_t *p = (uint8_t *)priv_words;
-  fiat_pasta_fq_from_montgomery(priv_words, priv_key);
+  fiat_pasta_from_montgomery(priv_words, priv_key, true);
   // Mina privkey hex format is in big-endian
   for (size_t i = sizeof(priv_words); i > 0; i--) {
     sprintf(&hex[2*(sizeof(priv_words) - i)], "%02x", p[i - 1]);
@@ -103,11 +104,11 @@ void sig_to_hex(char *hex, const size_t len, const Signature sig) {
   }
 
   uint64_t words[4];
-  fiat_pasta_fp_from_montgomery(words, sig.rx);
+  fiat_pasta_from_montgomery(words, sig.rx, false);
   for (size_t i = 4; i > 0; i--) {
     sprintf(&hex[16*(4 - i)], "%016" PRIx64, words[i - 1]);
   }
-  fiat_pasta_fq_from_montgomery(words, sig.s);
+  fiat_pasta_from_montgomery(words, sig.s, true);
   for (size_t i = 4; i > 0; i--) {
     sprintf(&hex[64 + 16*(4 - i)], "%016" PRIx64, words[i - 1]);
   }
@@ -260,7 +261,7 @@ char *field_to_hex(char *hex, size_t len, const Field x) {
   assert(len == 65);
   hex[64] = '\0';
   Scalar y;
-  fiat_pasta_fp_from_montgomery(y, x);
+  fiat_pasta_from_montgomery(y, x, false);
   uint8_t *p = (uint8_t *)y;
   for (size_t i = 0; i < sizeof(y); i++) {
     sprintf(&hex[2*i], "%02x", p[i]);
@@ -273,7 +274,7 @@ char *scalar_to_hex(char *hex, size_t len, const Scalar x) {
   assert(len == 65);
   hex[64] = '\0';
   Scalar y;
-  fiat_pasta_fq_from_montgomery(y, x);
+  fiat_pasta_from_montgomery(y, x, true);
   uint8_t *p = (uint8_t *)y;
   for (size_t i = 0; i < sizeof(y); i++) {
     sprintf(&hex[2*i], "%02x", p[i]);
@@ -309,7 +310,7 @@ void print_scalar_as_ledger_cstruct(const Scalar x) {
   uint64_t tmp[4];
   uint8_t *p = (uint8_t *)tmp;
 
-  fiat_pasta_fq_from_montgomery(tmp, x);
+  fiat_pasta_from_montgomery(tmp, x, true);
   printf("        {");
   for (size_t i = sizeof(Scalar); i > 0; i--) {
     if (i % 8 == 0) {
@@ -324,7 +325,7 @@ void print_affine_as_ledger_cstruct(const Affine *a) {
   uint64_t tmp[4];
   uint8_t *p = (uint8_t *)tmp;
 
-  fiat_pasta_fp_from_montgomery(tmp, a->x);
+  fiat_pasta_from_montgomery(tmp, a->x, false);
   printf("        {\n");
   printf("            {");
   for (size_t i = sizeof(Field); i > 0; i--) {
@@ -334,7 +335,7 @@ void print_affine_as_ledger_cstruct(const Affine *a) {
     printf("0x%02x, ", p[i - 1]);
   }
   printf("\n            },\n");
-  fiat_pasta_fp_from_montgomery(tmp, a->y);
+  fiat_pasta_from_montgomery(tmp, a->y, false);
   printf("            {");
   for (size_t i = sizeof(Field); i > 0; i--) {
     if (i % 8 == 0) {

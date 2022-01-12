@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "pasta.h"
 #include "pasta_fp.h"
 #include "pasta_fq.h"
 #include "crypto.h"
@@ -90,10 +91,10 @@ int main(int argc, char* argv[]) {
   char field_str[DIGITS] = { 0 };
   char scalar_str[DIGITS] = { 0 };
   uint64_t tmp[4];
-  fiat_pasta_fp_from_montgomery(tmp, sig.rx);
+  fiat_pasta_from_montgomery(tmp, sig.rx, false);
   bigint_to_string(field_str, tmp);
 
-  fiat_pasta_fq_from_montgomery(tmp, sig.s);
+  fiat_pasta_from_montgomery(tmp, sig.s, true);
   bigint_to_string(scalar_str, tmp);
 
   printf("{ publicKey: '%s',\n", fee_payer_str);
@@ -115,13 +116,13 @@ int main(int argc, char* argv[]) {
 
   char buf[DIGITS] = { 0 };
 
-  fiat_pasta_fp_from_montgomery(tmp, sig.rx);
+  fiat_pasta_from_montgomery(tmp, sig.rx, false);
   bigint_to_string(buf, tmp);
   printf("field = %s\n", buf);
 
   for (size_t i = 0; i < DIGITS; ++i) { buf[i] = 0; }
 
-  fiat_pasta_fq_from_montgomery(tmp, sig.s);
+  fiat_pasta_from_montgomery(tmp, sig.s, true);
   bigint_to_string(buf, tmp);
   printf("scalar = %s\n", buf);
 
@@ -178,13 +179,13 @@ int main(int argc, char* argv[]) {
   printf("\ndelegation signature only:\n");
 
   for (size_t i = 0; i < DIGITS; ++i) { buf[i] = 0; }
-  fiat_pasta_fp_from_montgomery(tmp, sig.rx);
+  fiat_pasta_from_montgomery(tmp, sig.rx, false);
   bigint_to_string(buf, tmp);
   printf("field = %s\n", buf);
 
   for (size_t i = 0; i < DIGITS; ++i) { buf[i] = 0; }
 
-  fiat_pasta_fq_from_montgomery(tmp, sig.s);
+  fiat_pasta_from_montgomery(tmp, sig.s, true);
   bigint_to_string(buf, tmp);
   printf("scalar = %s\n", buf);
 }

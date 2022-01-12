@@ -204,7 +204,7 @@ void field_copy(Field c, const Field a)
 bool field_is_odd(const Field y)
 {
     uint64_t tmp[4];
-    fiat_pasta_fp_from_montgomery(tmp, y);
+    fiat_pasta_from_montgomery(tmp, y, false);
     return tmp[0] & 1;
 }
 
@@ -568,7 +568,7 @@ void group_scalar_mul(Group *r, const Scalar k, const Group *p)
     Group tmp;
 
     uint64_t k_bits[4];
-    fiat_pasta_fq_from_montgomery(k_bits, k);
+    fiat_pasta_from_montgomery(k_bits, k, true);
 
     // Not constant time
     for (size_t i = 0; i < FIELD_SIZE_IN_BITS; ++i) {
@@ -667,7 +667,7 @@ void roinput_add_scalar(ROInput *input, const Scalar a) {
   const size_t len = FIELD_SIZE_IN_BITS;
 
   uint64_t scalar_bigint[4];
-  fiat_pasta_fq_from_montgomery(scalar_bigint, a);
+  fiat_pasta_from_montgomery(scalar_bigint, a, true);
 
   if (remaining < len) {
     printf("add_scalar: bits at capacity\n");
@@ -735,7 +735,7 @@ void roinput_to_bytes(uint8_t *out, const ROInput *input) {
 
   // first the field elements, then the bitstrings
   for (size_t i = 0; i < input->fields_len; ++i) {
-    fiat_pasta_fp_from_montgomery(tmp, input->fields + (i * LIMBS_PER_FIELD));
+    fiat_pasta_from_montgomery(tmp, input->fields + (i * LIMBS_PER_FIELD), false);
 
     for (size_t j = 0; j < FIELD_SIZE_IN_BITS; ++j) {
       size_t limb_idx = j / 64;
@@ -867,7 +867,7 @@ bool generate_address(char *address, const size_t len, const Affine *pub_key)
     raw.payload[1] = 0x01; // compressed_poly version
 
     // x-coordinate
-    fiat_pasta_fp_from_montgomery((uint64_t *)&raw.payload[2], pub_key->x);
+    fiat_pasta_from_montgomery((uint64_t *)&raw.payload[2], pub_key->x, false);
 
     // y-coordinate parity
     raw.payload[34] = field_is_odd(pub_key->y);
@@ -982,7 +982,7 @@ void compress(Compressed *compressed, const Affine *pt) {
   memcpy(compressed->x, pt->x, sizeof(uint64_t) * 4);
 
   Field y_bigint;
-  fiat_pasta_fp_from_montgomery(y_bigint, pt->y);
+  fiat_pasta_from_montgomery(y_bigint, pt->y, false);
 
   compressed->is_odd = y_bigint[0] & 1;
 }
@@ -1002,7 +1002,7 @@ bool decompress(Affine *pt, const Compressed *compressed) {
     return false;
   }
   Field y_pre_bigint;
-  fiat_pasta_fp_from_montgomery(y_pre_bigint, y_pre);
+  fiat_pasta_from_montgomery(y_pre_bigint, y_pre, false);
 
   const bool y_pre_odd = (y_pre_bigint[0] & 1);
   if (y_pre_odd == compressed->is_odd) {
@@ -1110,7 +1110,7 @@ bool verify(Signature *sig, const Compressed *pub_compressed, const Transaction 
     affine_from_group(&raff, &r);
 
     Field ry_bigint;
-    fiat_pasta_fp_from_montgomery(ry_bigint, raff.y);
+    fiat_pasta_from_montgomery(ry_bigint, raff.y, false);
 
     const bool ry_even = (ry_bigint[0] & 1) == 0;
 

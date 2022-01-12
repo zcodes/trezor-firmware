@@ -9,6 +9,7 @@
 #include <assert.h>
 
 #include "crypto.h"
+#include "pasta.h"
 #include "pasta_fp.h"
 #include "pasta_fq.h"
 #include "poseidon.h"
@@ -206,7 +207,7 @@ void poseidon_digest(Scalar out, PoseidonCtx *ctx) {
     ctx->permutation(ctx);
 
     uint64_t tmp[4];
-    fiat_pasta_fp_from_montgomery(tmp, ctx->state[0]);
+    fiat_pasta_from_montgomery(tmp, ctx->state[0], false);
 
     // since the difference in modulus between the two fields is < 2^125,
     // with high probability, a random value from one field will fit in the
