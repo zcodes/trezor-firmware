@@ -31,7 +31,7 @@ OBJS = $(SRCS:.c=.o)
 reference_signer: $(OBJS) reference_signer.c
 	$(CC) $(CFLAGS) -Wall -Werror $@.c -o $@ $(OBJS) -lm
 
-my_test: $(OBJS) my_test.c
+my_test: $(OBJS) my_test.c pasta.c
 	$(CC) $(CFLAGS) -Wall -Werror $@.c -o $@ $(OBJS) -lm
 
 .PRECIOUS: unit_tests
